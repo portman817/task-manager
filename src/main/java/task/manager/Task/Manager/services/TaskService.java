@@ -45,9 +45,6 @@ public class TaskService {
         return taskRepository.save(task);
     }
     public TaskResponse updateTaskStatus(Long taskId, TaskStatus status) {
-        if(!taskRepository.existsById(taskId)){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
-        }
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
         task.setStatus(status);
         task.setUpdatedAt(LocalDateTime.now());
