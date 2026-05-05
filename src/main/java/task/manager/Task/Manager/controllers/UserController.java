@@ -2,6 +2,7 @@ package task.manager.Task.Manager.controllers;
 
 import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
+import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.Task;
 import task.manager.Task.Manager.entity.User;
 import task.manager.Task.Manager.services.TaskService;
@@ -22,11 +23,11 @@ public class UserController {
         this.taskService=taskService;
     }
     @GetMapping
-    public List<User> getAllUsers(){
+    public List<UserResponse> getAllUsers(){
         return userService.getAllUsers();
     }
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
+    public UserResponse getUserById(@PathVariable Long id){
         return userService.getUserById(id);
     }
     @GetMapping("{id}/tasks")
@@ -34,7 +35,7 @@ public class UserController {
         return taskService.getTasksByUser(id);
     }
     @PostMapping
-    public User createUser(@RequestBody User user){
+    public UserResponse createUser(@RequestBody User user){
         return userService.createUser(user);
     }
     @DeleteMapping("/{id}")

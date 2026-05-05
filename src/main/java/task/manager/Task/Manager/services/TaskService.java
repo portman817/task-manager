@@ -13,6 +13,7 @@ import task.manager.Task.Manager.repos.UserRepository;
 import task.manager.Task.Manager.dto.requests.TaskCreateRequest;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 @Service
 public class TaskService {
@@ -25,15 +26,18 @@ public class TaskService {
         this.userRepository = userRepository;
     }
     public List<TaskResponse> getAllTasks() {
-        return ((List<Task>) taskRepository.findAll())
-                .stream()
-                .map(TaskMapper::toResponse)
-                .toList();
+        Iterable<Task> tasks = taskRepository.findAll();
+        List<TaskResponse> result = new ArrayList<>();
+        for(Task task : tasks){
+            result.add(TaskMapper.toResponse(task));
+        }
+        return result;
     }
-    public Task getTaskById(Long id){
-        return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+    public TaskResponse getTaskById(Long id){
+        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        return TaskMapper.toResponse(task);
     }
-    public Task createTask(TaskCreateRequest request) {
+    public TaskResponse createTask(TaskCreateRequest request) {
         User user = userRepository.findById(request.getUserId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Task task = new Task();
         task.setTitle(request.getTitle());
@@ -42,7 +46,8 @@ public class TaskService {
         task.setOwner(user);
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        Task savedTask=taskRepository.save(task);
+        return TaskMapper.toResponse(savedTask);
     }
     public TaskResponse updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
@@ -58,8 +63,12 @@ public class TaskService {
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
-
-        return taskRepository.findByOwnerUserId(userId).stream().map(TaskMapper::toResponse).toList();
+        Iterable<Task> tasks = taskRepository.findByOwnerUserId(userId);
+        List<TaskResponse> result = new ArrayList<>();
+        for(Task task : tasks){
+            result.add(TaskMapper.toResponse(task));
+        }
+        return result;
     }
 
 }

@@ -3,10 +3,13 @@ package task.manager.Task.Manager.services;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.User;
+import task.manager.Task.Manager.mappers.UserMapper;
 import task.manager.Task.Manager.repos.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,15 +19,22 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    public List<User> getAllUsers(){
-        return (List<User>) userRepository.findAll();
+    public List<UserResponse> getAllUsers(){
+        Iterable<User> users = userRepository.findAll();
+        List<UserResponse> result= new ArrayList<>();
+        for (User user: users ){
+            result.add(UserMapper.toResponse(user));
+        }
+        return result;
     }
-    public User getUserById(Long id){
-        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
+    public UserResponse getUserById(Long id){
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
+        return UserMapper.toResponse(user);
     }
-    public User createUser (User user){
+    public UserResponse createUser (User user){
         user.setCreatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponse(savedUser);
     }
     public void deleteUser (Long id){
         User user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
