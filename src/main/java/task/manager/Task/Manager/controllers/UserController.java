@@ -1,6 +1,8 @@
 package task.manager.Task.Manager.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import task.manager.Task.Manager.dto.requests.UserCreateRequest;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.Task;
@@ -35,8 +37,8 @@ public class UserController {
         return taskService.getTasksByUser(id);
     }
     @PostMapping
-    public UserResponse createUser(@RequestBody User user){
-        return userService.createUser(user);
+    public UserResponse createUser(@Valid @RequestBody UserCreateRequest request){
+        return userService.createUser(request);
     }
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id){

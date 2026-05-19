@@ -3,6 +3,7 @@ package task.manager.Task.Manager.services;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import task.manager.Task.Manager.dto.requests.UserCreateRequest;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.User;
 import task.manager.Task.Manager.mappers.UserMapper;
@@ -31,7 +32,11 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
         return UserMapper.toResponse(user);
     }
-    public UserResponse createUser (User user){
+    public UserResponse createUser (UserCreateRequest request){
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole());
         user.setCreatedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
         return UserMapper.toResponse(savedUser);

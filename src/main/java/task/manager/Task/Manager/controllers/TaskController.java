@@ -1,6 +1,7 @@
 package task.manager.Task.Manager.controllers;
 
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
 import task.manager.Task.Manager.entity.Task;
@@ -27,7 +28,7 @@ public class TaskController {
         return taskService.getTaskById(id);
     }
     @PostMapping
-    public TaskResponse createTask(@RequestBody TaskCreateRequest request) {
+    public TaskResponse createTask(@Valid @RequestBody TaskCreateRequest request) {
         return taskService.createTask(request);
     }
     @PutMapping("/{id}/status")

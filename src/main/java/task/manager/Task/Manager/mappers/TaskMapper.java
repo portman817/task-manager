@@ -15,7 +15,8 @@ public class TaskMapper {
                 task.getUpdatedAt(),
                 new UserResponse(
                         task.getOwner().getUserIdId(),
-                        task.getOwner().getUsername()
+                        task.getOwner().getUsername(),
+                        task.getOwner().getCreatedAt()
                 )
 
         );
