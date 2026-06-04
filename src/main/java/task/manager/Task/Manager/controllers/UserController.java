@@ -1,8 +1,11 @@
 package task.manager.Task.Manager.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import task.manager.Task.Manager.dto.requests.ChangePasswordRequest;
 import task.manager.Task.Manager.dto.requests.UserCreateRequest;
+import task.manager.Task.Manager.dto.requests.UserUpdateRequest;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.Task;
@@ -40,8 +43,18 @@ public class UserController {
     public UserResponse createUser(@Valid @RequestBody UserCreateRequest request){
         return userService.createUser(request);
     }
+    @PutMapping("/{userId}")
+    public UserResponse updateUser(@PathVariable Long userId,@Valid @RequestBody UserUpdateRequest request){
+        return userService.updateUser(userId, request);
+    }
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{userId}/password")
+    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @RequestBody ChangePasswordRequest request){
+        userService.changePassword(userId, request);
+        return ResponseEntity.noContent().build();
     }
 }

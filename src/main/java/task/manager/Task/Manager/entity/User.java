@@ -12,6 +12,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long userId;
+    @Column(unique = true, nullable = false)
     private String username;
     @JsonIgnore
     private String password;
@@ -19,7 +20,7 @@ public class User {
     private Role role;
     private LocalDateTime createdAt;
 
-    public long getUserIdId() {
+    public long getUserId() {
         return userId;
     }
 
