@@ -82,8 +82,8 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return UserMapper.toResponse(savedUser);
     }
-    public void changePassword(Long id, ChangePasswordRequest request){
-        User user = userRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    public void changePassword(ChangePasswordRequest request){
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
         }

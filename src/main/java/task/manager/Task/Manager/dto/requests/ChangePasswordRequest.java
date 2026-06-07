@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 
 public class ChangePasswordRequest {
     @NotBlank
+    private String username;
+    @NotBlank
     private String oldPassword;
     @NotBlank
     private String newPassword;
@@ -22,5 +24,13 @@ public class ChangePasswordRequest {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

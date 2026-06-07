@@ -52,9 +52,9 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{userId}/password")
-    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @RequestBody ChangePasswordRequest request){
-        userService.changePassword(userId, request);
+    @PutMapping("/changePassword")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request){
+        userService.changePassword(request);
         return ResponseEntity.noContent().build();
     }
 }
