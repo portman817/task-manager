@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.requests.ChangePasswordRequest;
+import task.manager.Task.Manager.dto.requests.CurrentUserUpdateUsernameRequest;
 import task.manager.Task.Manager.dto.requests.UserCreateRequest;
 import task.manager.Task.Manager.dto.requests.UserUpdateRequest;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
@@ -43,9 +44,9 @@ public class UserController {
     public UserResponse createUser(@Valid @RequestBody UserCreateRequest request){
         return userService.createUser(request);
     }
-    @PutMapping("/{userId}")
-    public UserResponse updateUser(@PathVariable Long userId,@Valid @RequestBody UserUpdateRequest request){
-        return userService.updateUser(userId, request);
+    @PutMapping("/{id}")
+    public UserResponse updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateRequest request){
+        return userService.updateUser(id, request);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
@@ -56,5 +57,13 @@ public class UserController {
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request){
         userService.changePassword(request);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(){
+        return userService.getCurrentUser();
+    }
+    @PutMapping("/me")
+    public UserResponse currentUserUpdateUsername(@Valid @RequestBody CurrentUserUpdateUsernameRequest request){
+        return userService.currentUserUpdateUsername(request);
     }
 }

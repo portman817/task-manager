@@ -6,14 +6,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import task.manager.Task.Manager.dto.requests.ChangePasswordRequest;
-import task.manager.Task.Manager.dto.requests.LoginRequest;
-import task.manager.Task.Manager.dto.requests.UserCreateRequest;
-import task.manager.Task.Manager.dto.requests.UserUpdateRequest;
+import task.manager.Task.Manager.dto.requests.*;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.User;
-import task.manager.Task.Manager.enums.Role;
 import task.manager.Task.Manager.mappers.LoginMapper;
 import task.manager.Task.Manager.mappers.UserMapper;
 import task.manager.Task.Manager.repos.TaskRepository;
@@ -47,14 +43,6 @@ public class UserService {
     }
     public UserResponse getUserById(Long id){
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
-        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
-        boolean isOwner = currentUser.getUserId() == id;
-        if(!isAdmin && !isOwner){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
         return UserMapper.toResponse(user);
 
     }
@@ -109,5 +97,22 @@ public class UserService {
         }
         String token = jwtService.generateToken(user);
         return LoginMapper.toResponse(user, token);
+    }
+    public UserResponse getCurrentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return UserMapper.toResponse(user);
+    }
+    public UserResponse currentUserUpdateUsername(CurrentUserUpdateUsernameRequest request){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
+        if(existingUser.isPresent() && existingUser.get().getUserId() != user.getUserId()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exist");
+        }
+        user.setUsername(request.getUsername());
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponse(savedUser);
     }
 }
