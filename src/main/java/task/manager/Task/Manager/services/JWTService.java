@@ -18,7 +18,7 @@ public class JWTService {
         return Jwts.builder().
                 setSubject(user.getUsername())
                 .claim("userId", user.getUserId())
-                .claim("role", user.getRole())
+                .claim("role", user.getRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 *60))
                 .signWith(getSingingKey(), SignatureAlgorithm.HS256).compact();
@@ -46,5 +46,8 @@ public class JWTService {
         catch (Exception e){
             return false;
         }
+    }
+    public String extractRole(String token){
+        return extractAllClaims(token).get("role", String.class);
     }
 }
