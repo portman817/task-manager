@@ -1,6 +1,7 @@
 package task.manager.Task.Manager.services;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -114,5 +115,14 @@ public class UserService {
         user.setUsername(request.getUsername());
         User savedUser = userRepository.save(user);
         return UserMapper.toResponse(savedUser);
+    }
+    public void currentUserChangePassword(CurrentUserChangePasswordRequest request){
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
+        }
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(currentUser);
     }
 }

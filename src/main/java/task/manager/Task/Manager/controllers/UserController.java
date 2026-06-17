@@ -3,10 +3,7 @@ package task.manager.Task.Manager.controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import task.manager.Task.Manager.dto.requests.ChangePasswordRequest;
-import task.manager.Task.Manager.dto.requests.CurrentUserUpdateUsernameRequest;
-import task.manager.Task.Manager.dto.requests.UserCreateRequest;
-import task.manager.Task.Manager.dto.requests.UserUpdateRequest;
+import task.manager.Task.Manager.dto.requests.*;
 import task.manager.Task.Manager.dto.responses.TaskResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.Task;
@@ -53,7 +50,7 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/changePassword")
+    @PutMapping("/password")
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request){
         userService.changePassword(request);
         return ResponseEntity.noContent().build();
@@ -65,5 +62,10 @@ public class UserController {
     @PutMapping("/me")
     public UserResponse currentUserUpdateUsername(@Valid @RequestBody CurrentUserUpdateUsernameRequest request){
         return userService.currentUserUpdateUsername(request);
+    }
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> currentUserChangePassword(@Valid @RequestBody CurrentUserChangePasswordRequest request){
+         userService.currentUserChangePassword(request);
+         return ResponseEntity.noContent().build();
     }
 }

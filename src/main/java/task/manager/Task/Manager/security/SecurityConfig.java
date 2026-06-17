@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/users/me").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/users/me/changePassword").authenticated()
                         .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/*").hasRole("ADMIN")
