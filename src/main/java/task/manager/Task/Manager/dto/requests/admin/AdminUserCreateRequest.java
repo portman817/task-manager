@@ -1,12 +1,11 @@
-package task.manager.Task.Manager.dto.requests;
+package task.manager.Task.Manager.dto.requests.admin;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import task.manager.Task.Manager.enums.Role;
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class UserCreateRequest {
+public class AdminUserCreateRequest {
     @NotBlank
     private String username;
     @NotBlank

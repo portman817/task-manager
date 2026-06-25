@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import task.manager.Task.Manager.dto.requests.LoginRequest;
+import task.manager.Task.Manager.dto.requests.auth.LoginRequest;
+import task.manager.Task.Manager.dto.requests.auth.UserRegisterRequest;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
+import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.services.UserService;
 
 @RestController
@@ -20,5 +22,9 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request){
         return userService.login(request);
+    }
+    @PostMapping("/register")
+    public UserResponse register(UserRegisterRequest request){
+        return userService.register(request);
     }
 }

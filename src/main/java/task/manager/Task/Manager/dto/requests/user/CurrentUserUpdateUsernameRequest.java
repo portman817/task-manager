@@ -1,4 +1,4 @@
-package task.manager.Task.Manager.dto.requests;
+package task.manager.Task.Manager.dto.requests.user;
 
 import jakarta.validation.constraints.NotBlank;
 

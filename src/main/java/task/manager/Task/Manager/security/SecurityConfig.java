@@ -26,15 +26,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/users/me").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/users/me/changePassword").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/users/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/users/password").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers( "/users/me").authenticated()
+                        .requestMatchers( "/users/me/**").authenticated()
+                        .requestMatchers( "/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

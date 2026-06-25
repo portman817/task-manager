@@ -1,16 +1,22 @@
 package task.manager.Task.Manager.services;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import task.manager.Task.Manager.dto.requests.*;
+import task.manager.Task.Manager.dto.requests.admin.AdminChangePasswordRequest;
+import task.manager.Task.Manager.dto.requests.admin.AdminUserCreateRequest;
+import task.manager.Task.Manager.dto.requests.admin.AdminUserUpdateRequest;
+import task.manager.Task.Manager.dto.requests.auth.LoginRequest;
+import task.manager.Task.Manager.dto.requests.auth.UserRegisterRequest;
+import task.manager.Task.Manager.dto.requests.user.CurrentUserChangePasswordRequest;
+import task.manager.Task.Manager.dto.requests.user.CurrentUserUpdateUsernameRequest;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.entity.User;
+import task.manager.Task.Manager.enums.Role;
 import task.manager.Task.Manager.mappers.LoginMapper;
 import task.manager.Task.Manager.mappers.UserMapper;
 import task.manager.Task.Manager.repos.TaskRepository;
@@ -47,7 +53,7 @@ public class UserService {
         return UserMapper.toResponse(user);
 
     }
-    public UserResponse createUser (UserCreateRequest request){
+    public UserResponse createUser (AdminUserCreateRequest request){
         if(userRepository.findByUsername(request.getUsername()).isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username alredy exist");
         }
@@ -72,7 +78,7 @@ public class UserService {
         userRepository.delete(user);
 
     }
-    public UserResponse updateUser(Long userId, UserUpdateRequest request){
+    public UserResponse updateUser(Long userId, AdminUserUpdateRequest request){
         Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
         if (existingUser.isPresent() && existingUser.get().getUserId() != userId){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already exist");
@@ -83,10 +89,10 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return UserMapper.toResponse(savedUser);
     }
-    public void changePassword(ChangePasswordRequest request){
-        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
+    public void changePassword(Long id, AdminChangePasswordRequest request){
+        User user = userRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(!passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from the current password");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -125,4 +131,17 @@ public class UserService {
         currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(currentUser);
     }
+    public UserResponse register(UserRegisterRequest request){
+        if(userRepository.findByUsername(request.getUsername()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exist");
+        }
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
+        user.setCreatedAt(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponse(savedUser);
+    }
+
 }
