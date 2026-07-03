@@ -15,6 +15,7 @@ import task.manager.Task.Manager.dto.requests.user.CurrentUserChangePasswordRequ
 import task.manager.Task.Manager.dto.requests.user.CurrentUserUpdateUsernameRequest;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
 import task.manager.Task.Manager.dto.responses.UserResponse;
+import task.manager.Task.Manager.entity.Task;
 import task.manager.Task.Manager.entity.User;
 import task.manager.Task.Manager.enums.Role;
 import task.manager.Task.Manager.mappers.LoginMapper;
@@ -67,31 +68,41 @@ public class UserService {
     }
     public void deleteUser (Long id){
         User user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
-
-
-        if (taskRepository.existsByOwner(user)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "User has tasks and cannot be deleted"
-            );
+        List<Task> tasks = taskRepository.findByOwnerUserId(id);
+        if(!tasks.isEmpty()){
+            taskRepository.deleteAll(tasks);
         }
         userRepository.delete(user);
 
     }
     public UserResponse updateUser(Long userId, AdminUserUpdateRequest request){
-        Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
-        if (existingUser.isPresent() && existingUser.get().getUserId() != userId){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already exist");
+        boolean changed = false;
+        if(request.getUsername()==null && request.getRole()==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
         }
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        user.setUsername(request.getUsername());
-        user.setRole(request.getRole());
+
+        if(request.getUsername()!=null && !user.getUsername().equals(request.getUsername())){
+            Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
+            if (existingUser.isPresent() && existingUser.get().getUserId() != userId){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already exist");
+            }
+            user.setUsername(request.getUsername());
+            changed = true;
+        }
+        if(request.getRole()!=null && !user.getRole().equals(request.getRole())){
+            user.setRole(request.getRole());
+            changed = true;
+        }
+        if(!changed){
+            return UserMapper.toResponse(user);
+        }
         User savedUser = userRepository.save(user);
         return UserMapper.toResponse(savedUser);
     }
     public void changePassword(Long id, AdminChangePasswordRequest request){
         User user = userRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        if(!passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from the current password");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -125,8 +136,12 @@ public class UserService {
     public void currentUserChangePassword(CurrentUserChangePasswordRequest request){
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        if(!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())){
+        boolean isPasswordCorrect= passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword());
+        if(!isPasswordCorrect){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
+        }
+        if(request.getOldPassword().equals(request.getNewPassword())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from the current password");
         }
         currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(currentUser);

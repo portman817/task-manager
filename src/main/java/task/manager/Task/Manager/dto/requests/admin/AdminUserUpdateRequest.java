@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import task.manager.Task.Manager.enums.Role;
 
 public class AdminUserUpdateRequest {
-    @NotBlank
     private String username;
-    @NotNull
     private Role role;
 
     public String getUsername() {

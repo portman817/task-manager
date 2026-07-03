@@ -1,5 +1,9 @@
 package task.manager.Task.Manager.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users/me")
+@Tag(name = "Current User", description = "Operations available for authenticated users")
 public class UserController {
 
     private final UserService userService;
@@ -27,34 +32,76 @@ public class UserController {
         this.taskService=taskService;
     }
 
-
+    @Operation(summary = "Get tasks by current user", description = "Returns all tasks belonging to the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Returns a list of tasks owned by the authenticated user. The list may be empty."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     @GetMapping("/tasks")
     public List<TaskResponse> getTasksByCurrentUser(){
         return taskService.getTasksByCurrentUser();
     }
+    @Operation(summary = "Create new Task", description = "Creates a new task for the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Task created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+
+    })
     @PostMapping("/tasks")
     public TaskResponse createTaskByCurrentUser(@Valid @RequestBody CurrentUserCreateTaskRequest request){
         return taskService.createTaskByCurrentUser(request);
     }
-
-
+    @Operation(summary = "Get current user", description = "Returns information about the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Current user returned successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @GetMapping
     public UserResponse getCurrentUser(){
         return userService.getCurrentUser();
     }
+    @Operation(summary = "Update current username", description = "Updates username of the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Username updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "409", description = "Username already exists")
+    })
     @PutMapping
     public UserResponse currentUserUpdateUsername(@Valid @RequestBody CurrentUserUpdateUsernameRequest request){
         return userService.currentUserUpdateUsername(request);
     }
+    @Operation(summary = "Update password by current user", description = "Update password of te authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password update is successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body or new password must be different from the current password"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized or old password is incorrect")
+    })
     @PutMapping("/password")
     public ResponseEntity<Void> currentUserChangePassword(@Valid @RequestBody CurrentUserChangePasswordRequest request){
          userService.currentUserChangePassword(request);
          return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Update task", description = "Partially updates the specified task if it belongs to the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Task updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body or no fields provided for update"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Task does not belong to the authenticated user"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     @PatchMapping("/tasks/{id}")
     public TaskResponse updateTaskByCurrentUser(@PathVariable Long id, @Valid @RequestBody CurrentUserUpdateTaskRequest request){
         return taskService.currentUserUpdateTask(id, request);
     }
+    @Operation(summary = "Delete task", description = "Deletes the specified task if it belongs to the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Task does not belong to the authenticated user"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> currentUserDeleteTask(@PathVariable Long id){
         taskService.deleteTaskByCurrentUser(id);
