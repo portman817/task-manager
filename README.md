@@ -2,6 +2,15 @@
 
 REST API for task management with JWT authentication and role-based authorization.
 
+Task Manager API is a RESTful backend application built with Spring Boot.
+
+The project allows users to:
+
+- register and authenticate using JWT;
+- manage their own tasks;
+- access administrator functionality based on user roles;
+- explore and test the API using Swagger UI.
+
 ## Tech Stack
 
 - Java 17
@@ -32,15 +41,3 @@ Build and start the application:
 
 ```bash
 docker compose up --build
-```
-
-The application will be available at:
-
-- API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui/index.html
-
-## API Documentation
-
-Swagger UI is available at:
-
-http://localhost:8080/swagger-ui/index.html
