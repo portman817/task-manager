@@ -4,7 +4,7 @@ REST API for task management with JWT authentication and role-based authorizatio
 
 ## Tech Stack
 
-- Java
+- Java 17
 - Spring Boot
 - Spring Security
 - JWT
@@ -12,6 +12,8 @@ REST API for task management with JWT authentication and role-based authorizatio
 - Spring Data JPA
 - Swagger / OpenAPI
 - Maven
+- Docker
+- Docker Compose
 
 ## Features
 
@@ -22,6 +24,20 @@ REST API for task management with JWT authentication and role-based authorizatio
 - Admin endpoints
 - Task management
 - Swagger API documentation
+- Dockerized application with PostgreSQL
+
+## Running with Docker
+
+Build and start the application:
+
+```bash
+docker compose up --build
+```
+
+The application will be available at:
+
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
 
 ## API Documentation
 
