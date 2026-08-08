@@ -16,6 +16,7 @@ public class TaskMapper {
                 new UserResponse(
                         task.getOwner().getUserId(),
                         task.getOwner().getUsername(),
+                        task.getOwner().getRole(),
                         task.getOwner().getCreatedAt()
                 )
 

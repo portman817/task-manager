@@ -56,7 +56,7 @@ public class UserService {
     }
     public UserResponse createUser (AdminUserCreateRequest request){
         if(userRepository.findByUsername(request.getUsername()).isPresent()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username alredy exist");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exist");
         }
         User user = new User();
         user.setUsername(request.getUsername());
@@ -85,7 +85,7 @@ public class UserService {
         if(request.getUsername()!=null && !user.getUsername().equals(request.getUsername())){
             Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
             if (existingUser.isPresent() && existingUser.get().getUserId() != userId){
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already exist");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already exist");
             }
             user.setUsername(request.getUsername());
             changed = true;
@@ -125,9 +125,12 @@ public class UserService {
     public UserResponse currentUserUpdateUsername(CurrentUserUpdateUsernameRequest request){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(user.getUsername().equals(request.getUsername())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New username must be different from the current username");
+        }
         Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
         if(existingUser.isPresent() && existingUser.get().getUserId() != user.getUserId()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exist");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
         }
         user.setUsername(request.getUsername());
         User savedUser = userRepository.save(user);

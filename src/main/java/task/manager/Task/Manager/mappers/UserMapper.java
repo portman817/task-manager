@@ -8,6 +8,7 @@ public class UserMapper {
         return new UserResponse(
                 user.getUserId(),
                 user.getUsername(),
+                user.getRole(),
                 user.getCreatedAt()
         );
     }
