@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.requests.admin.*;
@@ -38,7 +39,7 @@ public class AdminController {
     }
     @Operation(summary = "Get user", description = "Get user by id. Accessible only to administrators.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User return successfully"),
+            @ApiResponse(responseCode = "200", description = "User returned successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "User not found")
@@ -88,12 +89,13 @@ public class AdminController {
     @Operation(summary = "Create user", description = "Creates a new user account. Unlike public registration, " +
             "this endpoint allows administrators to create users with the ADMIN role.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User created successfully"),
+            @ApiResponse(responseCode = "201", description = "User created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request body"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "409", description = "Username already exist")
+            @ApiResponse(responseCode = "409", description = "Username already exists")
     })
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/users")
     public UserResponse createUser(@Valid @RequestBody AdminUserCreateRequest request){
         return userService.createUser(request);
@@ -133,12 +135,13 @@ public class AdminController {
     }
     @Operation(summary = "Create task", description = "Creates a new task for the specified user. Accessible only to administrators.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Task created successfully"),
+            @ApiResponse(responseCode = "201", description = "Task created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request body"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/tasks")
     public TaskResponse createTask(@Valid @RequestBody AdminTaskCreateRequest request){
         return taskService.createTask(request);
@@ -149,7 +152,7 @@ public class AdminController {
             @ApiResponse(responseCode = "400", description = "Invalid request body or no fields provided for update"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Task not found")
+            @ApiResponse(responseCode = "404", description = "Task or user not found")
     })
     @PatchMapping("/tasks/{taskId}")
     public TaskResponse updateTask(@PathVariable Long taskId, @Valid @RequestBody AdminUpdateTaskRequest request){

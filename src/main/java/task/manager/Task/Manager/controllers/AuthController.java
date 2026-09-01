@@ -5,10 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.requests.auth.LoginRequest;
 import task.manager.Task.Manager.dto.requests.auth.UserRegisterRequest;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
@@ -36,12 +34,13 @@ public class AuthController {
     }
     @Operation(summary = "Register user", description = "Creates a new user account with USER role")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User registered successfully"),
+            @ApiResponse(responseCode = "201", description = "User registered successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request body"),
             @ApiResponse(responseCode = "409", description = "Username already exists")
     })
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
-    public UserResponse register(UserRegisterRequest request){
+    public UserResponse register(@Valid @RequestBody UserRegisterRequest request){
         return userService.register(request);
     }
 }
