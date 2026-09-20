@@ -584,7 +584,7 @@ public class UserServiceTest {
             SecurityContextHolder.setContext(securityContext);
             ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.currentUserUpdateUsername(request));
             assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-            assertEquals("Username already exist", exception.getReason());
+            assertEquals("Username already exists", exception.getReason());
             verify(securityContext).getAuthentication();
             verify(authentication).getName();
             verify(userRepository).findByUsername(currentUsername);
