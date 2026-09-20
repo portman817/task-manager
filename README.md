@@ -1,19 +1,12 @@
-# Task Manager API
+# Task Manager
 
-REST API for task management with JWT authentication and role-based authorization.
-
-Task Manager API is a RESTful backend application built with Spring Boot.
-
-The project allows users to:
-
-- register and authenticate using JWT;
-- manage their own tasks;
-- access administrator functionality based on user roles;
-- explore and test the API using Swagger UI.
+Full-stack task management application with a Spring Boot REST API and React frontend.
 
 ## Tech Stack
 
-- Java 17
+### Backend
+
+- Java
 - Spring Boot
 - Spring Security
 - JWT
@@ -22,9 +15,16 @@ The project allows users to:
 - Swagger / OpenAPI
 - Maven
 - Docker
-- Docker Compose
+
+### Frontend
+
+- JavaScript
+- React
+- Vite
 
 ## Features
+
+### Backend
 
 - User registration and login
 - JWT authentication
@@ -33,17 +33,46 @@ The project allows users to:
 - Admin endpoints
 - Task management
 - Swagger API documentation
-- Dockerized application with PostgreSQL
 
-## Running with Docker
+### Frontend
 
-Build and start the application:
+- User login
+- JWT authentication
+- View user tasks
+- Create tasks
+- Delete tasks
+- Logout
 
-```bash
-docker compose up --build
-```
+## Project Structure
 
-The application will be available at:
+    Task-Manager/
+    ├── src/              # Spring Boot backend
+    ├── frontend/         # React frontend
+    ├── pom.xml
+    ├── Dockerfile
+    ├── docker-compose.yml
+    └── README.md
 
-- API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui/index.html
+## API Documentation
+
+Swagger UI is available at:
+
+    http://localhost:8080/swagger-ui/index.html
+
+## Running the Frontend
+
+Go to the frontend directory:
+
+    cd frontend
+
+Install dependencies:
+
+    npm install
+
+Start the development server:
+
+    npm run dev
+
+The frontend is available at:
+
+    http://localhost:5173
