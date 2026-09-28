@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {editTask} from "../api/taskApi.js";
 
 function EditingTask({task, onClose, onUpdate}){
     const [editTitle, setEditTitle] = useState(task.title)
@@ -10,17 +11,8 @@ function EditingTask({task, onClose, onUpdate}){
         if(editTitle !== task.title) updatedTaskFields.title=editTitle
         if(editDescription !== task.description) updatedTaskFields.description=editDescription
         if(editTaskStatus !== task.status) updatedTaskFields.taskStatus=editTaskStatus
-        const token = localStorage.getItem("token")
-        const response = await fetch(`http://localhost:8080/users/me/tasks/${task.taskId}`,{
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(updatedTaskFields)
-        })
-        if(!response.ok) return console.log("Updating task failed")
-        const data = await response.json()
+        const data = await editTask(updatedTaskFields, task)
+        if(data===null) return
         onUpdate(data)
     }
     return(<form onSubmit={handleSubmit} style={{border: "1px white solid"}}>

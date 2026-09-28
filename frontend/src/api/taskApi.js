@@ -28,4 +28,34 @@ const getTasks = async ()=>{
     return data
 
 }
-export {deleteTask, getTasks}
+const createTask = async (taskData)=>{
+    const token = localStorage.getItem("token")
+    const response = await fetch("http://localhost:8080/users/me/tasks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(taskData)
+    })
+    if(!response.ok){
+        return null
+    }
+    const data = await response.json()
+    return data
+}
+const editTask = async (updatedTaskFields, task)=>{
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:8080/users/me/tasks/${task.taskId}`,{
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedTaskFields)
+    })
+    if(!response.ok) return null
+    const data = await response.json()
+    return data
+}
+export {deleteTask, getTasks, createTask, editTask}

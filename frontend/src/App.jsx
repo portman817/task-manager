@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react'
 import LoginForm from "./components/LoginForm.jsx";
 import Task from "./components/Task.jsx";
 import AddTask from "./components/AddTask.jsx";
-import {deleteTask, getTasks} from "./api/taskApi.js";
+import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 
 function Header({appName}) {
    return(
@@ -73,19 +73,9 @@ const  handleSubmit = async (event)=>{
     if(title.trim()===""){
         return
     }
-    const token = localStorage.getItem("token")
-    const response = await fetch("http://localhost:8080/users/me/tasks", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({title, description, taskStatus})
-    })
-    if(!response.ok){
-        return
-    }
-    const data = await response.json()
+    const taskData = {title, description, taskStatus}
+    const data = await createTask(taskData)
+    if(data===null) return
     setTasks(prev=>[...prev, data])
     setTitle("")
     setDescription("")
@@ -116,7 +106,7 @@ const closeEditingTask = ()=>{
                   onDelete={()=>handleDeleteTask(task.taskId)} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
               )}
           </ul>) :(
-              <p>{loggedIn ? "We have no Tasks": ""}</p>
+              <p>{loggedIn && "We have no Tasks"}</p>
               )}
           {loggedIn && (<div><button onClick={handelShowAddTask}>New Task</button></div>)}
 
