@@ -21,23 +21,33 @@ function Logout({onLogout}) {
     )
 }
 function App() {
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token")===null ? false: true);
     const [tasks, setTasks] = useState([])
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [taskStatus, setTaskStatus] = useState("WARTET")
     const [showAddTask, setShowAddTask] = useState(false)
     const [editingTaskId, setEditingTaskId] = useState(null)
+    const TASK_STATUSES = {
+        WARTET: "Wartet,",
+        IN_BEARBEITUNG: "In Bearbeitung",
+        FERTIG: "Fertig"
+    }
     useEffect(() => {
         if(!loggedIn){
             return
         }
 
         const loadTasks = async ()=>{
-            const data = await getTasks()
-            if(data ===null) return
+            const result = await getTasks()
+            if(result.status===401) {
+                setLoggedIn(false)
+                localStorage.removeItem("token")
+                return
+            }
+            if(!result.ok) return
 
-            setTasks(data)
+            setTasks(result.data)
         }
         loadTasks()
 

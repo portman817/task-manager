@@ -1,3 +1,4 @@
+import TASK_STATUSES from "../constants/taskStatuses.js"
 function AddTask({onSubmit, title, description, taskStatus, setTitle, setDescription, setTaskStatus, onClose}){
     return(<form onSubmit={onSubmit}>
         <p>New Task: {title}</p>
@@ -7,9 +8,7 @@ function AddTask({onSubmit, title, description, taskStatus, setTitle, setDescrip
         <input value={description} onChange={event => {setDescription(event.target.value)}}/>
         <label>Task Status</label>
         <select value={taskStatus} onChange={event => {setTaskStatus(event.target.value)}}>
-            <option value="WARTET">Wartet</option>
-            <option value="IN_BEARBEITUNG">In Bearbeitung</option>
-            <option value="FERTIG">Fertig</option>
+            {Object.entries(TASK_STATUSES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
         </select>
         <button type={"submit"}>Add Task</button>
         <div><button type="button" onClick={onClose}>Close add Tasks</button></div>

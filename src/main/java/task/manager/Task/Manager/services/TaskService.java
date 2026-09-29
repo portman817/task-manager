@@ -97,7 +97,7 @@ public class TaskService {
     public TaskResponse currentUserUpdateTask(Long taskId, CurrentUserUpdateTaskRequest request) {
         boolean changed = false;
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         if(!task.getOwner().equals(currentUser)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -129,7 +129,7 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
     public List<TaskResponse> getTasksByCurrentUser() {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Iterable<Task> tasks = taskRepository.findByOwnerUserId(currentUser.getUserId());
         List<TaskResponse> result = new ArrayList<>();
@@ -139,7 +139,7 @@ public class TaskService {
         return result;
     }
     public TaskResponse createTaskByCurrentUser(CurrentUserCreateTaskRequest request){
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Task task = new Task();
         task.setTitle(request.getTitle());
@@ -154,7 +154,7 @@ public class TaskService {
     }
     public void deleteTaskByCurrentUser(Long id){
         Task task = taskRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         boolean isOwner = Objects.equals(currentUser.getUserId(), task.getOwner().getUserId());
         if(!isOwner){

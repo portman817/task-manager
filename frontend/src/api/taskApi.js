@@ -22,10 +22,17 @@ const getTasks = async ()=>{
     })
     if(!response.ok){
         console.log("Failed to load tasks")
-        return null
+        return{
+            ok: response.ok,
+            status: response.status,
+            data: null}
     }
     const data = await response.json()
-    return data
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: data
+    }
 
 }
 const createTask = async (taskData)=>{
@@ -41,12 +48,12 @@ const createTask = async (taskData)=>{
     if(!response.ok){
         return null
     }
-    const data = await response.json()
-    return data
+    return  await response.json()
+
 }
-const editTask = async (updatedTaskFields, task)=>{
+const editTask = async (updatedTaskFields, taskId)=>{
     const token = localStorage.getItem("token")
-    const response = await fetch(`http://localhost:8080/users/me/tasks/${task.taskId}`,{
+    const response = await fetch(`http://localhost:8080/users/me/tasks/${taskId}`,{
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -55,7 +62,8 @@ const editTask = async (updatedTaskFields, task)=>{
         body: JSON.stringify(updatedTaskFields)
     })
     if(!response.ok) return null
-    const data = await response.json()
-    return data
+    return  await response.json()
+
 }
+
 export {deleteTask, getTasks, createTask, editTask}

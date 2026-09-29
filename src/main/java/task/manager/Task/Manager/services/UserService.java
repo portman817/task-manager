@@ -26,6 +26,7 @@ import task.manager.Task.Manager.repos.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -118,12 +119,13 @@ public class UserService {
     }
     public UserResponse getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assert authentication != null;
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return UserMapper.toResponse(user);
     }
     public UserResponse currentUserUpdateUsername(CurrentUserUpdateUsernameRequest request){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         if(user.getUsername().equals(request.getUsername())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New username must be different from the current username");
@@ -137,7 +139,7 @@ public class UserService {
         return UserMapper.toResponse(savedUser);
     }
     public void currentUserChangePassword(CurrentUserChangePasswordRequest request){
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         boolean isPasswordCorrect= passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword());
         if(!isPasswordCorrect){

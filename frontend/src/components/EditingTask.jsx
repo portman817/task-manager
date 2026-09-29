@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {editTask} from "../api/taskApi.js";
+import TASK_STATUSES from "../constants/taskStatuses.js"
 
 function EditingTask({task, onClose, onUpdate}){
     const [editTitle, setEditTitle] = useState(task.title)
@@ -11,9 +12,11 @@ function EditingTask({task, onClose, onUpdate}){
         if(editTitle !== task.title) updatedTaskFields.title=editTitle
         if(editDescription !== task.description) updatedTaskFields.description=editDescription
         if(editTaskStatus !== task.status) updatedTaskFields.taskStatus=editTaskStatus
-        const data = await editTask(updatedTaskFields, task)
+        if(Object.keys(updatedTaskFields).length===0) return
+        const data = await editTask(updatedTaskFields, task.taskId)
         if(data===null) return
         onUpdate(data)
+        onClose()
     }
     return(<form onSubmit={handleSubmit} style={{border: "1px white solid"}}>
         <label>Title</label><br/>
@@ -21,10 +24,8 @@ function EditingTask({task, onClose, onUpdate}){
         <label>Description</label><br/>
         <input value={editDescription} onChange={event => {setEditDescription(event.target.value)}}/><br/>
         <label>Task Status</label><br/>
-        <select style={{marginBottom: "20px"}} value={editTaskStatus} onChange={event => {setEditTaskStatus(event.target.value)}}>
-            <option value="WARTET">Wartet</option>
-            <option value="IN_BEARBEITUNG">In Bearbeitung</option>
-            <option value="FERTIG">Fertig</option>
+        <select style={{marginBottom: "20px", padding: "5px"}} value={editTaskStatus} onChange={event => {setEditTaskStatus(event.target.value)}}>
+            {Object.entries(TASK_STATUSES).map(([value, label]) =><option key={value} value={value}>{label}</option>)}
         </select><br/>
         <button style={{marginRight: "10px"}} type="submit">Save</button>
         <button type="button" onClick={onClose}>Close Editing</button>
