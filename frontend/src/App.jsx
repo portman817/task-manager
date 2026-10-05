@@ -4,16 +4,40 @@ import LoginForm from "./components/LoginForm.jsx";
 import Task from "./components/Task.jsx";
 import AddTask from "./components/AddTask.jsx";
 import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
+import {getCurrentUser} from "./api/userApi.js";
+import UpdateUsername from "./components/UpdateUsername.jsx"
 
 function Header({appName}) {
    return(
        <h1>{appName}</h1>
    )
 }
-function Welcome({username}) {
+function Welcome({username, role, onUpdate, onLogout}) {
+    const [showUpdateUsername, setShowUpdateUsername] = useState(false)
+    const handleShowUpdateUsername = ()=>{
+
+        setShowUpdateUsername(true)
+    }
+    const closeUpdateUsername = ()=>{
+        setShowUpdateUsername(false)
+    }
     return(
-        <p>Welcome, {username}</p>
-    )
+        <>
+            <h3>Welcome {username !== null ? username: ""}</h3>
+            {username && <button onClick={handleShowUpdateUsername}>Edit username</button>}
+
+            {showUpdateUsername === true ?
+
+                <UpdateUsername currentUsername={username} onUpdate={onUpdate} onClose={closeUpdateUsername} onLogout={onLogout} />: ""
+             }
+            {role && <div>
+                <p>Role {role}</p>
+            </div>}
+
+        </>
+
+
+)
 }
 function Logout({onLogout}) {
     return(
@@ -21,17 +45,21 @@ function Logout({onLogout}) {
     )
 }
 function App() {
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token")===null ? false: true);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") !== null);
     const [tasks, setTasks] = useState([])
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [taskStatus, setTaskStatus] = useState("WARTET")
     const [showAddTask, setShowAddTask] = useState(false)
     const [editingTaskId, setEditingTaskId] = useState(null)
-    const TASK_STATUSES = {
-        WARTET: "Wartet,",
-        IN_BEARBEITUNG: "In Bearbeitung",
-        FERTIG: "Fertig"
+    const [currentUser, setCurrentUser]= useState(null)
+
+    const handleLogout = ()=>{
+        setLoggedIn(false)
+        localStorage.removeItem("token")
+        setTasks([])
+        setEditingTaskId(null)
+        setCurrentUser(null)
     }
     useEffect(() => {
         if(!loggedIn){
@@ -40,9 +68,8 @@ function App() {
 
         const loadTasks = async ()=>{
             const result = await getTasks()
-            if(result.status===401) {
-                setLoggedIn(false)
-                localStorage.removeItem("token")
+            if(result.status===401){
+                handleLogout()
                 return
             }
             if(!result.ok) return
@@ -50,23 +77,30 @@ function App() {
             setTasks(result.data)
         }
         loadTasks()
+        const loadCurrentUser = async ()=>{
+            const result = await getCurrentUser()
+            if(result.status===401){
+                handleLogout()
+                return
+            }
+            if(!result.ok) return
+            setCurrentUser(result.data)
+        }
+        loadCurrentUser()
 
     }, [loggedIn])
 const appName = "Task Manager";
-const username = "Ivan";
 const updateTask = (updatedTask)=>{
     setTasks(prev =>prev.map(task => task.taskId === updatedTask.taskId ? updatedTask: task))
 }
+const updateUsername =(updatedUser)=>{
+    setCurrentUser(updatedUser)
+    }
 const handleLogin = () =>{
 
     setLoggedIn(true)
 }
-const handleLogout = ()=>{
-    setLoggedIn(false)
-    localStorage.removeItem("token")
-    setTasks([])
-    setEditingTaskId(null)
-}
+
 const handleTaskEdit = (id)=>{
     setEditingTaskId(id)
 }
@@ -103,7 +137,8 @@ const closeEditingTask = ()=>{
   return (
       <>
           <Header appName={appName} />
-        <Welcome username = {username} />
+          {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Please sign in."}
+
           {!loggedIn ? <LoginForm onLogin={handleLogin}  /> : <Logout onLogout={handleLogout}/>}
 
           <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
