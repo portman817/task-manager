@@ -46,4 +46,22 @@ const currentUserUpdateUsername = async (username)=>{
         data: data
     }
 }
-export {getCurrentUser, currentUserUpdateUsername}
+const currentUserChangePassword = async (oldPassword, newPassword)=>{
+    const token = localStorage.getItem("token")
+    const response = await fetch("http://localhost:8080/users/me/password",{
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({oldPassword, newPassword})
+    })
+    if(!response.ok) {
+        console.log("Password change failed")
+        return false
+    }
+
+        return true
+    }
+
+export {getCurrentUser, currentUserUpdateUsername, currentUserChangePassword}

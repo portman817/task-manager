@@ -6,6 +6,7 @@ import AddTask from "./components/AddTask.jsx";
 import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
 import UpdateUsername from "./components/UpdateUsername.jsx"
+import UpdatePassword from "./components/UpdatePassword.jsx";
 
 function Header({appName}) {
    return(
@@ -14,6 +15,7 @@ function Header({appName}) {
 }
 function Welcome({username, role, onUpdate, onLogout}) {
     const [showUpdateUsername, setShowUpdateUsername] = useState(false)
+    const [showUpdatePassword, setShowUpdatePassword] = useState(false)
     const handleShowUpdateUsername = ()=>{
 
         setShowUpdateUsername(true)
@@ -21,18 +23,30 @@ function Welcome({username, role, onUpdate, onLogout}) {
     const closeUpdateUsername = ()=>{
         setShowUpdateUsername(false)
     }
+    const handleShowUpdatePassword =()=>{
+        setShowUpdatePassword(true)
+    }
+    const closeUpdatePassword = ()=>{
+        setShowUpdatePassword(false)
+    }
     return(
         <>
             <h3>Welcome {username !== null ? username: ""}</h3>
-            {username && <button onClick={handleShowUpdateUsername}>Edit username</button>}
+            {username && (<><button onClick={handleShowUpdateUsername}>Edit username</button><br/>
+            <button onClick={handleShowUpdatePassword}>Change password</button></>)}
 
-            {showUpdateUsername === true ?
 
-                <UpdateUsername currentUsername={username} onUpdate={onUpdate} onClose={closeUpdateUsername} onLogout={onLogout} />: ""
+            {showUpdateUsername &&
+
+                <UpdateUsername currentUsername={username} onUpdate={onUpdate} onClose={closeUpdateUsername} onLogout={onLogout} />
              }
-            {role && <div>
+            {showUpdatePassword &&
+            <UpdatePassword onClose={closeUpdatePassword}/>
+            }
+            {role && (
+                <div>
                 <p>Role {role}</p>
-            </div>}
+            </div>) }
 
         </>
 
@@ -137,7 +151,7 @@ const closeEditingTask = ()=>{
   return (
       <>
           <Header appName={appName} />
-          {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Please sign in."}
+          {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
 
           {!loggedIn ? <LoginForm onLogin={handleLogin}  /> : <Logout onLogout={handleLogout}/>}
 
