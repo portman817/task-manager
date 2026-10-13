@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.requests.auth.LoginRequest;
 import task.manager.Task.Manager.dto.requests.auth.UserRegisterRequest;
 import task.manager.Task.Manager.dto.responses.LoginResponse;
-import task.manager.Task.Manager.dto.responses.UserResponse;
 import task.manager.Task.Manager.services.UserService;
 
 @RestController
@@ -42,6 +41,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterRequest request){
+        userService.register(request);
         return ResponseEntity.noContent().build();
     }
 }
