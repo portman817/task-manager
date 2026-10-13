@@ -7,6 +7,7 @@ import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
 import UpdateUsername from "./components/UpdateUsername.jsx"
 import UpdatePassword from "./components/UpdatePassword.jsx";
+import RegisterForm from "./components/RegisterForm.jsx";
 
 function Header({appName}) {
    return(
@@ -67,6 +68,7 @@ function App() {
     const [showAddTask, setShowAddTask] = useState(false)
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [currentUser, setCurrentUser]= useState(null)
+    const [isRegistred, setIsRegistred] = useState(true)
 
     const handleLogout = ()=>{
         setLoggedIn(false)
@@ -148,13 +150,22 @@ const closeAddTask = ()=>{
 const closeEditingTask = ()=>{
     setEditingTaskId(null)
 }
+const showRegisterForm= ()=>{
+    setIsRegistred(false)
+    }
+    const closeRegisterFOrm =()=>{
+    setIsRegistred(true)
+    }
   return (
       <>
           <Header appName={appName} />
           {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
 
-          {!loggedIn ? <LoginForm onLogin={handleLogin}  /> : <Logout onLogout={handleLogout}/>}
-
+          {(!loggedIn && isRegistred) && <><LoginForm onLogin={handleLogin}  /><br/>
+          <button type="button" onClick={showRegisterForm}>Register</button>
+          </> }
+          {(!loggedIn && !isRegistred) && <RegisterForm onClose={closeRegisterFOrm} />}
+          {loggedIn && <Logout onLogout={handleLogout}/>}
           <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
           {tasks.length!==0 && loggedIn ?(
           <ul>
