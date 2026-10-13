@@ -5,55 +5,15 @@ import Task from "./components/Task.jsx";
 import AddTask from "./components/AddTask.jsx";
 import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
-import UpdateUsername from "./components/UpdateUsername.jsx"
-import UpdatePassword from "./components/UpdatePassword.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
+import Welcome from "./components/Welcome.jsx";
 
 function Header({appName}) {
    return(
        <h1>{appName}</h1>
    )
 }
-function Welcome({username, role, onUpdate, onLogout}) {
-    const [showUpdateUsername, setShowUpdateUsername] = useState(false)
-    const [showUpdatePassword, setShowUpdatePassword] = useState(false)
-    const handleShowUpdateUsername = ()=>{
 
-        setShowUpdateUsername(true)
-    }
-    const closeUpdateUsername = ()=>{
-        setShowUpdateUsername(false)
-    }
-    const handleShowUpdatePassword =()=>{
-        setShowUpdatePassword(true)
-    }
-    const closeUpdatePassword = ()=>{
-        setShowUpdatePassword(false)
-    }
-    return(
-        <>
-            <h3>Welcome {username !== null ? username: ""}</h3>
-            {username && (<><button onClick={handleShowUpdateUsername}>Edit username</button><br/>
-            <button onClick={handleShowUpdatePassword}>Change password</button></>)}
-
-
-            {showUpdateUsername &&
-
-                <UpdateUsername currentUsername={username} onUpdate={onUpdate} onClose={closeUpdateUsername} onLogout={onLogout} />
-             }
-            {showUpdatePassword &&
-            <UpdatePassword onClose={closeUpdatePassword}/>
-            }
-            {role && (
-                <div>
-                <p>Role {role}</p>
-            </div>) }
-
-        </>
-
-
-)
-}
 function Logout({onLogout}) {
     return(
         <button onClick={onLogout}>Logout</button>
@@ -68,7 +28,7 @@ function App() {
     const [showAddTask, setShowAddTask] = useState(false)
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [currentUser, setCurrentUser]= useState(null)
-    const [isRegistred, setIsRegistred] = useState(true)
+    const [isRegistered, setIsRegistered] = useState(true)
 
     const handleLogout = ()=>{
         setLoggedIn(false)
@@ -151,20 +111,20 @@ const closeEditingTask = ()=>{
     setEditingTaskId(null)
 }
 const showRegisterForm= ()=>{
-    setIsRegistred(false)
+    setIsRegistered(false)
     }
     const closeRegisterFOrm =()=>{
-    setIsRegistred(true)
+    setIsRegistered(true)
     }
   return (
       <>
           <Header appName={appName} />
           {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
 
-          {(!loggedIn && isRegistred) && <><LoginForm onLogin={handleLogin}  /><br/>
+          {(!loggedIn && isRegistered) && <><LoginForm onLogin={handleLogin}  /><br/>
           <button type="button" onClick={showRegisterForm}>Register</button>
           </> }
-          {(!loggedIn && !isRegistred) && <RegisterForm onClose={closeRegisterFOrm} />}
+          {(!loggedIn && !isRegistered) && <RegisterForm onClose={closeRegisterFOrm} />}
           {loggedIn && <Logout onLogout={handleLogout}/>}
           <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
           {tasks.length!==0 && loggedIn ?(
