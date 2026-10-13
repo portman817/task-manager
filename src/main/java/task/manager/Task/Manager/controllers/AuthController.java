@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import task.manager.Task.Manager.dto.requests.auth.LoginRequest;
 import task.manager.Task.Manager.dto.requests.auth.UserRegisterRequest;
@@ -40,7 +41,7 @@ public class AuthController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
-    public UserResponse register(@Valid @RequestBody UserRegisterRequest request){
-        return userService.register(request);
+    public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterRequest request){
+        return ResponseEntity.noContent().build();
     }
 }

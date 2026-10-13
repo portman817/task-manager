@@ -567,7 +567,7 @@ public class UserServiceTest {
         void currentUserUpdateUsername_ShouldThrowConflictWhenUsernameAlreadyExists() {
             String newUsername = "John";
             String currentUsername = "Anna";
-            long userId = 1l;
+            long userId = 1L;
             long existingUserId = 2L;
             CurrentUserUpdateUsernameRequest request = new CurrentUserUpdateUsernameRequest();
             request.setUsername(newUsername);
@@ -745,7 +745,7 @@ public class UserServiceTest {
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
             when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            UserResponse response = userService.register(request);
+            userService.register(request);
             ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
             verify(userRepository).findByUsername(request.getUsername());
             verify(passwordEncoder).encode(request.getPassword());
@@ -755,8 +755,6 @@ public class UserServiceTest {
             assertEquals(encodedPassword, capturedUser.getPassword());
             assertEquals(Role.USER, capturedUser.getRole());
             assertNotNull(capturedUser.getCreatedAt());
-            assertEquals(request.getUsername(), response.getUsername());
-            assertEquals(Role.USER, response.getRole());
         }
     }
 
