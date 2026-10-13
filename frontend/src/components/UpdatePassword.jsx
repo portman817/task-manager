@@ -22,9 +22,9 @@ function UpdatePassword({onClose}) {
     return(
         <form onSubmit={handleSubmit}>
             <label>Old password</label>
-            <input value={oldPassword} onChange={event => (setOldPassword(event.target.value))}/>
+            <input required type="password" value={oldPassword} onChange={event => (setOldPassword(event.target.value))}/>
             <label>New password</label>
-            <input value={newPassword} onChange={event => (setNewPassword(event.target.value))}/>
+            <input required type="password" value={newPassword} onChange={event => (setNewPassword(event.target.value))}/>
             <button type="submit">Save</button>
             <button type="button" onClick={onClose}>Close</button>
         </form>

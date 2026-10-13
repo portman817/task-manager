@@ -20,7 +20,7 @@ function EditingTask({task, onClose, onUpdate}){
     }
     return(<form onSubmit={handleSubmit} style={{border: "1px white solid"}}>
         <label>Title</label><br/>
-        <input value={editTitle} onChange={event => {setEditTitle(event.target.value)}}/><br/>
+        <input required value={editTitle} onChange={event => {setEditTitle(event.target.value)}}/><br/>
         <label>Description</label><br/>
         <input value={editDescription} onChange={event => {setEditDescription(event.target.value)}}/><br/>
         <label>Task Status</label><br/>

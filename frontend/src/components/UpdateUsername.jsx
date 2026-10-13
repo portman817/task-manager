@@ -17,7 +17,7 @@ function UpdateUsername({currentUsername, onUpdate, onClose, onLogout}) {
     return(
         <form onSubmit={handleSubmit}>
             <label>New username</label>
-            <input value={newUsername} onChange={event=>{setNewUserName(event.target.value)}}/><br/>
+            <input required value={newUsername} onChange={event=>{setNewUserName(event.target.value)}}/><br/>
             <button type="submit">Save</button><br/>
             <button type="button" onClick={onClose}>Close</button>
         </form>)

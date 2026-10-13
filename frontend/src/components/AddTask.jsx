@@ -3,7 +3,7 @@ function AddTask({onSubmit, title, description, taskStatus, setTitle, setDescrip
     return(<form onSubmit={onSubmit}>
         <p>New Task: {title}</p>
         <label>Title</label>
-        <input value={title} onChange={event => { setTitle(event.target.value)}}/>
+        <input required value={title} onChange={event => { setTitle(event.target.value)}}/>
         <label>Description</label>
         <input value={description} onChange={event => {setDescription(event.target.value)}}/>
         <label>Task Status</label>
