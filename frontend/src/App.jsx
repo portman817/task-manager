@@ -7,6 +7,8 @@ import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
 import RegisterForm from "./components/RegisterForm.jsx";
 import Welcome from "./components/Welcome.jsx";
+import {Routes, Route, Navigate, Link} from "react-router-dom";
+import AdminPanel from "./pages/AdminPanel.jsx";
 
 function Header({appName}) {
    return(
@@ -29,6 +31,7 @@ function App() {
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [currentUser, setCurrentUser]= useState(null)
     const [isRegistered, setIsRegistered] = useState(true)
+    const [userLoading, setUserLoading] = useState(loggedIn)
 
     const handleLogout = ()=>{
         setLoggedIn(false)
@@ -36,6 +39,7 @@ function App() {
         setTasks([])
         setEditingTaskId(null)
         setCurrentUser(null)
+        setUserLoading(false)
     }
     useEffect(() => {
         if(!loggedIn){
@@ -54,13 +58,23 @@ function App() {
         }
         loadTasks()
         const loadCurrentUser = async ()=>{
-            const result = await getCurrentUser()
-            if(result.status===401){
-                handleLogout()
-                return
+            try {
+                const result = await getCurrentUser()
+                if(result.status===401){
+                    handleLogout()
+                    return
+                }
+                if(!result.ok) return
+                setCurrentUser(result.data)
+
             }
-            if(!result.ok) return
-            setCurrentUser(result.data)
+            catch (error){
+                console.log("Failed to load current user:", error)
+            }
+            finally {
+                setUserLoading(false)
+            }
+
         }
         loadCurrentUser()
 
@@ -75,6 +89,7 @@ const updateUsername =(updatedUser)=>{
 const handleLogin = () =>{
 
     setLoggedIn(true)
+    setUserLoading(true)
 }
 
 const handleTaskEdit = (id)=>{
@@ -117,32 +132,43 @@ const showRegisterForm= ()=>{
     setIsRegistered(true)
     }
   return (
-      <>
-          <Header appName={appName} />
-          {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
+      <Routes>
+          <Route path="/" element={
+                              <>
+                                  <Header appName={appName} />
+                                  {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
+                                  {loggedIn && currentUser?.role==="ADMIN" && <Link to="/admin">Open Admin Panel</Link>
+                                  }
+                                  {(!loggedIn && isRegistered) && <><LoginForm onLogin={handleLogin}  /><br/>
+                                      <button type="button" onClick={showRegisterForm}>Register</button>
+                                  </> }
+                                  {(!loggedIn && !isRegistered) && <RegisterForm onClose={closeRegisterFOrm} />}
+                                  {loggedIn && <Logout onLogout={handleLogout}/>}
+                                  <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
+                                  {tasks.length!==0 && loggedIn ?(
+                                      <ul>
+                                          { tasks.map(task =>
+                                              <Task
+                                                  key={task.taskId}
+                                                  task={task}
+                                                  onDelete={()=>handleDeleteTask(task.taskId)} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
+                                          )}
+                                      </ul>) :(
+                                      <p>{loggedIn && "We have no Tasks"}</p>
+                                  )}
+                                  {loggedIn && (<div><button onClick={handelShowAddTask}>New Task</button></div>)}
 
-          {(!loggedIn && isRegistered) && <><LoginForm onLogin={handleLogin}  /><br/>
-          <button type="button" onClick={showRegisterForm}>Register</button>
-          </> }
-          {(!loggedIn && !isRegistered) && <RegisterForm onClose={closeRegisterFOrm} />}
-          {loggedIn && <Logout onLogout={handleLogout}/>}
-          <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
-          {tasks.length!==0 && loggedIn ?(
-          <ul>
-              { tasks.map(task =>
-                  <Task
-                  key={task.taskId}
-                  task={task}
-                  onDelete={()=>handleDeleteTask(task.taskId)} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
-              )}
-          </ul>) :(
-              <p>{loggedIn && "We have no Tasks"}</p>
-              )}
-          {loggedIn && (<div><button onClick={handelShowAddTask}>New Task</button></div>)}
+                                  {loggedIn && showAddTask && (<AddTask onSubmit={handleSubmit} title={title} description={description} taskStatus={taskStatus} setTitle={setTitle} setDescription={setDescription} setTaskStatus={setTaskStatus} onClose={closeAddTask}  />)}
 
-          {loggedIn && showAddTask && (<AddTask onSubmit={handleSubmit} title={title} description={description} taskStatus={taskStatus} setTitle={setTitle} setDescription={setDescription} setTaskStatus={setTaskStatus} onClose={closeAddTask}  />)}
+                              </>
 
-      </>
+          }/>
+          <Route path="/admin" element={
+            userLoading ? <p>User Loading</p>: loggedIn && currentUser.role==="ADMIN" ? <AdminPanel /> : <Navigate to="/" replace />
+
+                               }/>
+      </Routes>
+
   )
 }
 export default App
