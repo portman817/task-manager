@@ -136,13 +136,13 @@ const showRegisterForm= ()=>{
           <Route path="/" element={
                               <>
                                   <Header appName={appName} />
-                                  {loggedIn ? (<Welcome username = {currentUser !==null ? currentUser.username : ""} role={currentUser !==null ? currentUser.role: ""} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
+                                  {loggedIn && currentUser ? (<Welcome username = {currentUser.username} role={currentUser.role} onUpdate={updateUsername} onLogout={handleLogout}/>): "Sign in."}
                                   {loggedIn && currentUser?.role==="ADMIN" && <Link to="/admin">Open Admin Panel</Link>
                                   }
-                                  {(!loggedIn && isRegistered) && <><LoginForm onLogin={handleLogin}  /><br/>
+                                  {!loggedIn && isRegistered && <><LoginForm onLogin={handleLogin}  /><br/>
                                       <button type="button" onClick={showRegisterForm}>Register</button>
                                   </> }
-                                  {(!loggedIn && !isRegistered) && <RegisterForm onClose={closeRegisterFOrm} />}
+                                  {!loggedIn && !isRegistered && <RegisterForm onClose={closeRegisterFOrm} />}
                                   {loggedIn && <Logout onLogout={handleLogout}/>}
                                   <p>{loggedIn ? "Logged in" : "Not Logged in"}</p>
                                   {tasks.length!==0 && loggedIn ?(

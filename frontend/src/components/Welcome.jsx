@@ -6,14 +6,15 @@ function Welcome({username, role, onUpdate, onLogout}) {
     const [showUpdateUsername, setShowUpdateUsername] = useState(false)
     const [showUpdatePassword, setShowUpdatePassword] = useState(false)
     const handleShowUpdateUsername = ()=>{
-
         setShowUpdateUsername(true)
+        closeUpdatePassword()
     }
     const closeUpdateUsername = ()=>{
         setShowUpdateUsername(false)
     }
     const handleShowUpdatePassword =()=>{
         setShowUpdatePassword(true)
+        closeUpdateUsername()
     }
     const closeUpdatePassword = ()=>{
         setShowUpdatePassword(false)
