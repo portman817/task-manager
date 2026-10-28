@@ -1,6 +1,7 @@
 import {getAllUsers} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
+import UserList from "../components/UserList.jsx";
 
 function AdminPanel(){
     const [users, setUsers] = useState([])
@@ -30,17 +31,7 @@ function AdminPanel(){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 &&(
-                <ul>
-                    {users.map(user =>
-                    <li key={user.id} style={{marginBottom: "10px"}}>
-                        <h3>Username: {user.username}</h3>
-                        <p>Id: {user.id}</p>
-                        <p>Role: {user.role}</p>
-                        <p>Creating Date: {user.createdAt}</p>
-                    </li>)}
-                </ul>
-            )}
+            {users.length!==0 && <UserList users={users} />}
             <Link to="/">Back</Link>
         </>
 
