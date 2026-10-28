@@ -4,14 +4,32 @@ import {Link} from "react-router-dom";
 
 function AdminPanel(){
     const [users, setUsers] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
     const getUsers = async ()=>{
-        const result = await getAllUsers()
-        if (!result.ok) return
-        setUsers(result.data)
+        setLoading(true)
+        try {
+            setUsers([])
+            setError("")
+            const result = await getAllUsers()
+            if (!result.ok) {
+                setError("Error status:" + result.status)
+                return
+            }
+            setUsers(result.data)
+        }
+        catch (error){
+            console.error("Failed by Users upload", error)
+            setError("Network error. Failed to load users.")
+        }
+        finally {
+            setLoading(false)
+        }
     }
     return(<>
         <h1>Admin Panel</h1>
-            <button onClick={getUsers}>Get All Users</button>
+            <button onClick={getUsers} disabled={loading}>Get All Users</button>
+            {error && <p>{error}</p>}
             {users.length!==0 &&(
                 <ul>
                     {users.map(user =>
