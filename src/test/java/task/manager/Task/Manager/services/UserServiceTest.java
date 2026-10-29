@@ -77,9 +77,9 @@ public class UserServiceTest {
             user.setCreatedAt(createdAt);
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             UserResponse response = userService.getUserById(userId);
-            assertEquals(userId, response.getId());
-            assertEquals(user.getUsername(), response.getUsername());
-            assertEquals(createdAt, response.getCreatedAt());
+            assertEquals(userId, response.id());
+            assertEquals(user.getUsername(), response.username());
+            assertEquals(createdAt, response.createdAt());
             verify(userRepository).findById(userId);
         }
 
@@ -112,12 +112,12 @@ public class UserServiceTest {
             when(userRepository.findAll()).thenReturn(List.of(user1, user2));
             List<UserResponse> result = userService.getAllUsers();
             assertEquals(2, result.size());
-            assertEquals(user1.getUserId(), result.get(0).getId());
-            assertEquals(user1.getUsername(), result.get(0).getUsername());
-            assertEquals(createdAt1, result.get(0).getCreatedAt());
-            assertEquals(user2.getUserId(), result.get(1).getId());
-            assertEquals(user2.getUsername(), result.get(1).getUsername());
-            assertEquals(createdAt2, result.get(1).getCreatedAt());
+            assertEquals(user1.getUserId(), result.get(0).id());
+            assertEquals(user1.getUsername(), result.get(0).username());
+            assertEquals(createdAt1, result.get(0).createdAt());
+            assertEquals(user2.getUserId(), result.get(1).id());
+            assertEquals(user2.getUsername(), result.get(1).username());
+            assertEquals(createdAt2, result.get(1).createdAt());
             verify(userRepository).findAll();
         }
 
@@ -150,9 +150,9 @@ public class UserServiceTest {
             when(passwordEncoder.encode(request.getPassword())).thenReturn(savedUser.getPassword());
             when(userRepository.save(any(User.class))).thenReturn(savedUser);
             UserResponse response = userService.createUser(request);
-            assertEquals(savedUser.getUserId(), response.getId());
-            assertEquals(request.getUsername(), response.getUsername());
-            assertEquals(createdAt, response.getCreatedAt());
+            assertEquals(savedUser.getUserId(), response.id());
+            assertEquals(request.getUsername(), response.username());
+            assertEquals(createdAt, response.createdAt());
             verify(userRepository).findByUsername(request.getUsername());
             verify(passwordEncoder).encode(request.getPassword());
             verify(userRepository).save(any(User.class));
@@ -268,8 +268,8 @@ public class UserServiceTest {
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
             when(userRepository.save(user)).thenReturn(user);
             UserResponse response = userService.updateUser(user.getUserId(), request);
-            assertEquals(user.getUserId(), response.getId());
-            assertEquals(request.getUsername(), response.getUsername());
+            assertEquals(user.getUserId(), response.id());
+            assertEquals(request.getUsername(), response.username());
             verify(userRepository).findById(user.getUserId());
             verify(userRepository).findByUsername(request.getUsername());
             verify(userRepository).save(user);
@@ -305,8 +305,8 @@ public class UserServiceTest {
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
             UserResponse response = userService.updateUser(user.getUserId(), request);
-            assertEquals(user.getUserId(), response.getId());
-            assertEquals(request.getRole(), response.getRole());
+            assertEquals(user.getUserId(), response.id());
+            assertEquals(request.getRole(), response.role());
             verify(userRepository).findById(user.getUserId());
             verify(userRepository, never()).findByUsername(anyString());
             verify(userRepository).save(user);
@@ -325,9 +325,9 @@ public class UserServiceTest {
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
             when(userRepository.save(user)).thenReturn(user);
             UserResponse response = userService.updateUser(user.getUserId(), request);
-            assertEquals(user.getUserId(), response.getId());
-            assertEquals(request.getUsername(), response.getUsername());
-            assertEquals(request.getRole(), response.getRole());
+            assertEquals(user.getUserId(), response.id());
+            assertEquals(request.getUsername(), response.username());
+            assertEquals(request.getRole(), response.role());
             verify(userRepository).findById(user.getUserId());
             verify(userRepository).findByUsername(request.getUsername());
             verify(userRepository).save(user);
@@ -344,9 +344,9 @@ public class UserServiceTest {
             user.setUsername("John");
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
             UserResponse response = userService.updateUser(user.getUserId(), request);
-            assertEquals(user.getUserId(), response.getId());
-            assertEquals(request.getRole(), response.getRole());
-            assertEquals(request.getUsername(), response.getUsername());
+            assertEquals(user.getUserId(), response.id());
+            assertEquals(request.getRole(), response.role());
+            assertEquals(request.getUsername(), response.username());
             verify(userRepository).findById(user.getUserId());
             verify(userRepository, never()).findByUsername(anyString());
             verify(userRepository, never()).save(any(User.class));
@@ -459,8 +459,8 @@ public class UserServiceTest {
             when(passwordEncoder.matches(request.getPassword(), user.getPassword())).thenReturn(true);
             when(jwtService.generateToken(user)).thenReturn(token);
             LoginResponse response = userService.login(request);
-            assertEquals(user.getUsername(), response.getUsername());
-            assertEquals(token, response.getToken());
+            assertEquals(user.getUsername(), response.username());
+            assertEquals(token, response.token());
             verify(userRepository).findByUsername(request.getUsername());
             verify(passwordEncoder).matches(request.getPassword(), user.getPassword());
             verify(jwtService).generateToken(user);
@@ -480,7 +480,7 @@ public class UserServiceTest {
             when(userRepository.findByUsername(name)).thenReturn(Optional.of(user));
             SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.getCurrentUser();
-            assertEquals(user.getUsername(), response.getUsername());
+            assertEquals(user.getUsername(), response.username());
             verify(securityContext).getAuthentication();
             verify(authentication).getName();
             verify(userRepository).findByUsername(name);
@@ -533,8 +533,8 @@ public class UserServiceTest {
             when(userRepository.save(user)).thenReturn(user);
             SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.currentUserUpdateUsername(request);
-            assertEquals(user.getUserId(), response.getId());
-            assertEquals(request.getUsername(), response.getUsername());
+            assertEquals(user.getUserId(), response.id());
+            assertEquals(request.getUsername(), response.username());
             assertEquals(newUsername, user.getUsername());
             verify(securityContext).getAuthentication();
             verify(authentication).getName();

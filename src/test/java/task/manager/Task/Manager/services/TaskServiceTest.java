@@ -81,12 +81,12 @@ public class TaskServiceTest {
             when(taskRepository.findAll()).thenReturn(List.of(task1, task2));
             List<TaskResponse> responses = taskService.getAllTasks();
             assertEquals(2, responses.size());
-            assertEquals(task1.getTitle(), responses.get(0).getTitle());
-            assertEquals(task2.getTitle(), responses.get(1).getTitle());
-            assertEquals(task1.getTaskid(), responses.get(0).getTaskId());
-            assertEquals(task2.getTaskid(), responses.get(1).getTaskId());
-            assertEquals(task1.getOwner().getUserId(), responses.get(0).getOwner().getId());
-            assertEquals(task2.getOwner().getUserId(), responses.get(1).getOwner().getId());
+            assertEquals(task1.getTitle(), responses.get(0).title());
+            assertEquals(task2.getTitle(), responses.get(1).title());
+            assertEquals(task1.getTaskid(), responses.get(0).taskId());
+            assertEquals(task2.getTaskid(), responses.get(1).taskId());
+            assertEquals(task1.getOwner().getUserId(), responses.get(0).owner().id());
+            assertEquals(task2.getOwner().getUserId(), responses.get(1).owner().id());
             verify(taskRepository).findAll();
         }
         @Test
@@ -109,8 +109,8 @@ public class TaskServiceTest {
             task.setOwner(user);
             when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
             TaskResponse response = taskService.getTaskById(taskId);
-            assertEquals(taskId, response.getTaskId());
-            assertEquals(user.getUserId(), response.getOwner().getId());
+            assertEquals(taskId, response.taskId());
+            assertEquals(user.getUserId(), response.owner().id());
             verify(taskRepository).findById(taskId);
         }
         @Test
@@ -137,10 +137,10 @@ public class TaskServiceTest {
             when(taskRepository.findByOwnerUserId(user.getUserId())).thenReturn(List.of(task1, task2));
             List<TaskResponse>responses = taskService.getTasksByUserId(user.getUserId());
             assertEquals(2, responses.size());
-            assertEquals(task1.getTaskid(), responses.get(0).getTaskId());
-            assertEquals(task1.getOwner().getUserId(), responses.get(0).getOwner().getId());
-            assertEquals(task2.getTaskid(), responses.get(1).getTaskId());
-            assertEquals(task2.getOwner().getUserId(), responses.get(1).getOwner().getId());
+            assertEquals(task1.getTaskid(), responses.get(0).taskId());
+            assertEquals(task1.getOwner().getUserId(), responses.get(0).owner().id());
+            assertEquals(task2.getTaskid(), responses.get(1).taskId());
+            assertEquals(task2.getOwner().getUserId(), responses.get(1).owner().id());
             verify(userRepository).findById(user.getUserId());
             verify(taskRepository).findByOwnerUserId(user.getUserId());
         }
@@ -186,10 +186,10 @@ public class TaskServiceTest {
             assertEquals(request.getDescription(), capturedTask.getDescription());
             assertNotNull(capturedTask.getCreatedAt());
             assertNotNull(capturedTask.getUpdatedAt());
-            assertEquals(user.getUserId(), response.getOwner().getId());
-            assertEquals(request.getTitle(), response.getTitle());
-            assertEquals(request.getTaskStatus(), response.getStatus());
-            assertEquals(request.getDescription(), response.getDescription());
+            assertEquals(user.getUserId(), response.owner().id());
+            assertEquals(request.getTitle(), response.title());
+            assertEquals(request.getTaskStatus(), response.status());
+            assertEquals(request.getDescription(), response.description());
         }
         @Test
         void createTask_ShouldThrowNotFoundWhenUserDoesNotExist(){
@@ -252,7 +252,7 @@ public class TaskServiceTest {
            when(taskRepository.save(task)).thenReturn(task);
            TaskResponse response = taskService.updateTask(taskId, request);
            assertEquals(request.getUserId(), task.getOwner().getUserId());
-           assertEquals(user.getUserId(), response.getOwner().getId());
+           assertEquals(user.getUserId(), response.owner().id());
            verify(taskRepository).findById(taskId);
            verify(userRepository).findById(request.getUserId());
            verify(taskRepository).save(task);
@@ -296,9 +296,9 @@ public class TaskServiceTest {
            assertEquals(request.getTitle(), task.getTitle());
            assertEquals(request.getDescription(), task.getDescription());
            assertNotNull(task.getUpdatedAt());
-           assertEquals(request.getTaskStatus(), response.getStatus());
-           assertEquals(request.getTitle(), response.getTitle());
-           assertEquals(request.getDescription(), response.getDescription());
+           assertEquals(request.getTaskStatus(), response.status());
+           assertEquals(request.getTitle(), response.title());
+           assertEquals(request.getDescription(), response.description());
            verify(taskRepository).findById(taskId);
            verify(userRepository, never()).findById(anyLong());
            verify(taskRepository).save(task);
@@ -314,7 +314,7 @@ public class TaskServiceTest {
            when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
            TaskResponse response = taskService.updateTask(taskId, request);
            assertEquals(user.getUserId(), task.getOwner().getUserId());
-           assertEquals(user.getUserId(), response.getOwner().getId());
+           assertEquals(user.getUserId(), response.owner().id());
            verify(taskRepository).findById(taskId);
            verify(userRepository, never()).findById(anyLong());
            verify(taskRepository, never()).save(any(Task.class));
@@ -342,10 +342,10 @@ public class TaskServiceTest {
            assertEquals(request.getTitle(), task.getTitle());
            assertEquals(request.getDescription(), task.getDescription());
            assertEquals(request.getTaskStatus(), task.getStatus());
-           assertEquals(request.getUserId(), response.getOwner().getId());
-           assertEquals(request.getTitle(), response.getTitle());
-           assertEquals(request.getDescription(), response.getDescription());
-           assertEquals(request.getTaskStatus(), response.getStatus());
+           assertEquals(request.getUserId(), response.owner().id());
+           assertEquals(request.getTitle(), response.title());
+           assertEquals(request.getDescription(), response.description());
+           assertEquals(request.getTaskStatus(), response.status());
            verify(taskRepository).findById(taskId);
            verify(userRepository, never()).findById(anyLong());
            verify(taskRepository, never()).save(any(Task.class));
@@ -465,9 +465,9 @@ public class TaskServiceTest {
             assertEquals(request.getDescription(), task.getDescription());
             assertEquals(request.getTaskStatus(), task.getStatus());
             assertNotNull(task.getUpdatedAt());
-            assertEquals(request.getTitle(), response.getTitle());
-            assertEquals(request.getDescription(), response.getDescription());
-            assertEquals(request.getTaskStatus(), response.getStatus());
+            assertEquals(request.getTitle(), response.title());
+            assertEquals(request.getDescription(), response.description());
+            assertEquals(request.getTaskStatus(), response.status());
             verify(taskRepository).findById(taskId);
             verify(securityContext).getAuthentication();
             verify(authentication).getName();
@@ -497,9 +497,9 @@ public class TaskServiceTest {
             when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
             SecurityContextHolder.setContext(securityContext);
             TaskResponse response = taskService.currentUserUpdateTask(taskId, request);
-            assertEquals(request.getTitle(), response.getTitle());
-            assertEquals(request.getDescription(), response.getDescription());
-            assertEquals(request.getTaskStatus(), response.getStatus());
+            assertEquals(request.getTitle(), response.title());
+            assertEquals(request.getDescription(), response.description());
+            assertEquals(request.getTaskStatus(), response.status());
             assertNull(task.getUpdatedAt());
             verify(taskRepository).findById(taskId);
             verify(securityContext).getAuthentication();
@@ -563,12 +563,12 @@ public class TaskServiceTest {
             when(taskRepository.findByOwnerUserId(user.getUserId())).thenReturn(List.of(task1, task2));
             SecurityContextHolder.setContext(securityContext);
             List<TaskResponse>responses = taskService.getTasksByCurrentUser();
-            assertEquals(task1.getTaskid(), responses.get(0).getTaskId());
-            assertEquals(task1.getTitle(), responses.get(0).getTitle());
-            assertEquals(task1.getOwner().getUserId(), responses.get(0).getOwner().getId());
-            assertEquals(task2.getTaskid(), responses.get(1).getTaskId());
-            assertEquals(task2.getTitle(), responses.get(1).getTitle());
-            assertEquals(task2.getOwner().getUserId(), responses.get(1).getOwner().getId());
+            assertEquals(task1.getTaskid(), responses.get(0).taskId());
+            assertEquals(task1.getTitle(), responses.get(0).title());
+            assertEquals(task1.getOwner().getUserId(), responses.get(0).owner().id());
+            assertEquals(task2.getTaskid(), responses.get(1).taskId());
+            assertEquals(task2.getTitle(), responses.get(1).title());
+            assertEquals(task2.getOwner().getUserId(), responses.get(1).owner().id());
             verify(securityContext).getAuthentication();
             verify(authentication).getName();
             verify(userRepository).findByUsername(username);
@@ -631,10 +631,10 @@ public class TaskServiceTest {
             assertEquals(request.getDescription(), capturedTask.getDescription());
             assertEquals(request.getTaskStatus(), capturedTask.getStatus());
             assertEquals(user.getUserId(), capturedTask.getOwner().getUserId());
-            assertEquals(request.getTitle(), response.getTitle());
-            assertEquals(request.getDescription(), response.getDescription());
-            assertEquals(request.getTaskStatus(), response.getStatus());
-            assertEquals(user.getUserId(), response.getOwner().getId());
+            assertEquals(request.getTitle(), response.title());
+            assertEquals(request.getDescription(), response.description());
+            assertEquals(request.getTaskStatus(), response.status());
+            assertEquals(user.getUserId(), response.owner().id());
             assertNotNull(capturedTask.getCreatedAt());
             assertNotNull(capturedTask.getUpdatedAt());
         }
