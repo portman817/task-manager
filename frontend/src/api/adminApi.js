@@ -20,4 +20,18 @@ const getAllUsers = async ()=>{
         data: data
     }
 }
-export {getAllUsers}
+const deleteUser = async (id) =>{
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:8080/admin/users/${id}`,{
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    if(!response.ok){
+        console.log("User delete failed")
+        return false
+    }
+    return true
+}
+export {getAllUsers, deleteUser}

@@ -1,9 +1,9 @@
-import {getAllUsers} from "../api/adminApi.js";
+import {getAllUsers, deleteUser} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
-import UserList from "../components/UserList.jsx";
+import UsersList from "../components/UsersList.jsx";
 
-function AdminPanel(){
+function AdminPanel({currentUserId}){
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
@@ -27,11 +27,27 @@ function AdminPanel(){
             setLoading(false)
         }
     }
+    const handleDeleteUser = async(id)=>{
+        try {
+            const success = await deleteUser(id)
+            if(!success) return
+            setUsers(prev =>prev.filter(user =>user.id !== id))
+            console.log("User deleted successefully")
+        }
+        catch (error){
+            console.error("User delete failed", error)
+        }
+
+    }
+    const closeUsersList =()=>
+        setUsers([])
+
+
     return(<>
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UserList users={users} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} />}
             <Link to="/">Back</Link>
         </>
 
