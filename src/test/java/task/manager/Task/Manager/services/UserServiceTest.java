@@ -181,8 +181,13 @@ public class UserServiceTest {
 
         @Test
         void shouldDeleteUserAndOwnedTasksSuccessfully() {
+            String currentUserUsername = "CurrentUsername";
             User user = new User();
             user.setUserId(1L);
+            User admin = new User();
+            admin.setUserId(2L);
+            admin.setUsername(currentUserUsername);
+            admin.setRole(Role.ADMIN);
             Task task1 = new Task();
             task1.setOwner(user);
             Task task2 = new Task();
@@ -191,23 +196,68 @@ public class UserServiceTest {
             tasks.add(task1);
             tasks.add(task2);
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(taskRepository.findByOwnerUserId(user.getUserId())).thenReturn(tasks);
+            SecurityContextHolder.setContext(securityContext);
             userService.deleteUser(user.getUserId());
             verify(userRepository).findById(user.getUserId());
+            verify(securityContext).getAuthentication();
+            verify(authentication).getName();
+            verify(userRepository).findByUsername(currentUserUsername);
             verify(taskRepository).findByOwnerUserId(user.getUserId());
             verify(taskRepository).deleteAll(tasks);
             verify(userRepository).delete(user);
         }
+        @Test
+        void deleteUser_ShouldReturnForbidden_WhenDeletingOwnAccount(){
+            String currentUserUsername = "CurrentUsername";
+            long id = 1L;
+            User user = new User();
+            user.setUserId(id);
+            User admin = new User();
+            admin.setUserId(id);
+            admin.setUsername(currentUserUsername);
+            admin.setRole(Role.ADMIN);
+            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
+            SecurityContextHolder.setContext(securityContext);
+            ResponseStatusException exception= assertThrows(ResponseStatusException.class, ()-> userService.deleteUser(id));
+            assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+            assertEquals("You cannot delete your own account", exception.getReason());
+            verify(userRepository).findById(user.getUserId());
+            verify(securityContext).getAuthentication();
+            verify(authentication).getName();
+            verify(userRepository).findByUsername(currentUserUsername);
+            verify(taskRepository, never()).findByOwnerUserId(anyLong());
+            verify(taskRepository, never()).deleteAll(anyList());
+            verify(userRepository, never()).delete(any(User.class));
+        }
 
         @Test
         void shouldDeleteUserWhenUserHasNoTasks() {
+            String currentUserUsername = "CurrentUsername";
             User user = new User();
             user.setUserId(1L);
+            User admin = new User();
+            admin.setUserId(2L);
+            admin.setUsername(currentUserUsername);
+            admin.setRole(Role.ADMIN);
             List<Task> tasks = List.of();
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(taskRepository.findByOwnerUserId(user.getUserId())).thenReturn(tasks);
+            SecurityContextHolder.setContext(securityContext);
             userService.deleteUser(user.getUserId());
             verify(userRepository).findById(user.getUserId());
+            verify(securityContext).getAuthentication();
+            verify(authentication).getName();
+            verify(userRepository).findByUsername(currentUserUsername);
             verify(taskRepository).findByOwnerUserId(user.getUserId());
             verify(taskRepository, never()).deleteAll(anyList());
             verify(userRepository).delete(user);
@@ -221,6 +271,9 @@ public class UserServiceTest {
             assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
             assertEquals("User not found", exception.getReason());
             verify(userRepository).findById(userId);
+            verify(securityContext, never()).getAuthentication();
+            verify(authentication, never()).getName();
+            verify(userRepository, never()).findByUsername(anyString());
             verify(taskRepository, never()).findByOwnerUserId(userId);
             verify(taskRepository, never()).deleteAll(anyList());
             verify(userRepository, never()).delete(any(User.class));

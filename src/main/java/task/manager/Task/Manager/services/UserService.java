@@ -69,6 +69,10 @@ public class UserService {
     }
     public void deleteUser (Long id){
         User user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found"));
+        UserResponse currentUser = getCurrentUser();
+        if (user.getUserId() == currentUser.id()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete your own account");
+        }
         List<Task> tasks = taskRepository.findByOwnerUserId(id);
         if(!tasks.isEmpty()){
             taskRepository.deleteAll(tasks);
