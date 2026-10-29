@@ -30,8 +30,16 @@ const deleteUser = async (id) =>{
     })
     if(!response.ok){
         console.log("User delete failed")
-        return false
+        return {
+            ok: response.ok,
+            status: response.status,
+            data: null
+        }
     }
-    return true
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: null
+    }
 }
 export {getAllUsers, deleteUser}

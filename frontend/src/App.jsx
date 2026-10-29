@@ -163,10 +163,7 @@ const showRegisterForm= ()=>{
                               </>
 
           }/>
-          <Route path="/admin" element={
-            userLoading ? <p>User Loading</p>: loggedIn && currentUser.role==="ADMIN" ? <AdminPanel currentUserId={currentUser.id} /> : <Navigate to="/" replace />
-
-                               }/>
+          <Route path="/admin" element={userLoading ? <p>User Loading</p>: loggedIn && currentUser?.role==="ADMIN" ? <AdminPanel currentUserId={currentUser.id} onLogout={handleLogout} /> : <Navigate to="/" replace />}/>
       </Routes>
 
   )

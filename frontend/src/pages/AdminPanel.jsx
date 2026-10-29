@@ -3,7 +3,7 @@ import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
 
-function AdminPanel({currentUserId}){
+function AdminPanel({currentUserId, onLogout}){
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
@@ -13,10 +13,15 @@ function AdminPanel({currentUserId}){
             setUsers([])
             setError("")
             const result = await getAllUsers()
+            if(result.status===401) {
+                onLogout()
+                return
+            }
             if (!result.ok) {
                 setError("Error status:" + result.status)
                 return
             }
+
             setUsers(result.data)
         }
         catch (error){
@@ -29,8 +34,13 @@ function AdminPanel({currentUserId}){
     }
     const handleDeleteUser = async(id)=>{
         try {
-            const success = await deleteUser(id)
-            if(!success) return
+            const result = await deleteUser(id)
+            if(result.status===401){
+                onLogout()
+                return
+            }
+            if(!result.ok) return
+
             setUsers(prev =>prev.filter(user =>user.id !== id))
             console.log("User deleted successefully")
         }
