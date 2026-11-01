@@ -1,6 +1,21 @@
 import TASK_STATUSES from "../constants/taskStatuses.js"
-function AddTask({onSubmit, title, description, taskStatus, setTitle, setDescription, setTaskStatus, onClose}){
-    return(<form onSubmit={onSubmit}>
+import {useState} from "react";
+
+function AddTask({onSubmit, onClose}){
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [taskStatus, setTaskStatus] = useState("WARTET")
+    const handleCreateTask = async (event)=>{
+        event.preventDefault()
+        if(title.trim()==="") return
+        const taskData = {title, description, taskStatus}
+        const success = await onSubmit(taskData)
+        if(!success) return
+        setTitle("")
+        setDescription("")
+        setTaskStatus("WARTET")
+    }
+    return(<form onSubmit={handleCreateTask}>
         <p>New Task: {title}</p>
         <label>Title</label>
         <input required value={title} onChange={event => { setTitle(event.target.value)}}/>

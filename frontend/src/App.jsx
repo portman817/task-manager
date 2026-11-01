@@ -24,9 +24,6 @@ function Logout({onLogout}) {
 function App() {
     const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") !== null);
     const [tasks, setTasks] = useState([])
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [taskStatus, setTaskStatus] = useState("WARTET")
     const [showAddTask, setShowAddTask] = useState(false)
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [currentUser, setCurrentUser]= useState(null)
@@ -103,18 +100,22 @@ const handleDeleteTask = async (id)=>{
     if(!success) return
     setTasks(prev => prev.filter(task => task.taskId !==id))
 }
-const  handleSubmit = async (event)=>{
-    event.preventDefault()
-    if(title.trim()===""){
-        return
+const  handleSubmit = async (task)=>{
+try {
+    const result = await createTask(task)
+    if(result.status === 401){
+        handleLogout()
+        return false
     }
-    const taskData = {title, description, taskStatus}
-    const data = await createTask(taskData)
-    if(data===null) return
-    setTasks(prev=>[...prev, data])
-    setTitle("")
-    setDescription("")
-    setTaskStatus("WARTET")
+    if (!result.ok) return false
+    setTasks(prev=>[...prev, result.data])
+    return true
+}
+catch (error){
+    console.error("Task creating is failed", error)
+    return false
+}
+
 }
 const handelShowAddTask = ()=>{
     setShowAddTask(true)
@@ -158,7 +159,7 @@ const showRegisterForm= ()=>{
                                   )}
                                   {loggedIn && (<div><button onClick={handelShowAddTask}>New Task</button></div>)}
 
-                                  {loggedIn && showAddTask && (<AddTask onSubmit={handleSubmit} title={title} description={description} taskStatus={taskStatus} setTitle={setTitle} setDescription={setDescription} setTaskStatus={setTaskStatus} onClose={closeAddTask}  />)}
+                                  {loggedIn && showAddTask && (<AddTask onSubmit={handleSubmit} onClose={closeAddTask}  />)}
 
                               </>
 
