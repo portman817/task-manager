@@ -42,4 +42,30 @@ const deleteUser = async (id) =>{
         data: null
     }
 }
-export {getAllUsers, deleteUser}
+const createUser = async (user) =>{
+    const token = localStorage.getItem("token")
+    const response = await fetch("http://localhost:8080/admin/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(user)
+    })
+    if(!response.ok){
+        console.error("User created failed")
+        return {
+            ok: response.ok,
+            status: response.status,
+            data: null
+        }
+
+    }
+    const data = await response.json()
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: data
+    }
+}
+export {getAllUsers, deleteUser, createUser}

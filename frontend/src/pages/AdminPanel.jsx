@@ -1,12 +1,14 @@
-import {getAllUsers, deleteUser} from "../api/adminApi.js";
+import {getAllUsers, deleteUser, createUser} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
+import CreateUserForm from "../components/CreateUserForm.jsx"
 
 function AdminPanel({currentUserId, onLogout}){
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const [showCreateUser, setShowCreateUser] = useState(false)
     const getUsers = async ()=>{
         setLoading(true)
         try {
@@ -49,8 +51,33 @@ function AdminPanel({currentUserId, onLogout}){
         }
 
     }
+    const handleCreateUser = async (user) => {
+        try {
+            const result = await createUser(user)
+            if(result.status===401){
+                onLogout()
+                return false
+            }
+            if(!result.ok) return
+            if(users.length>0){
+                setUsers(prev =>[...prev, result.data])
+            }
+            return true
+
+        }
+        catch(error){
+            console.error("Failed to create user:", error)
+            return false
+        }
+
+
+    }
     const closeUsersList =()=>
         setUsers([])
+    const handleShowCreateUser = ()=>
+        setShowCreateUser(true)
+    const closeCreateUser = ()=>
+        setShowCreateUser(false)
 
 
     return(<>
@@ -58,6 +85,8 @@ function AdminPanel({currentUserId, onLogout}){
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
             {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} />}
+            <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
+            {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>
         </>
 
