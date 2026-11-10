@@ -68,17 +68,19 @@ const createUser = async (user) =>{
         data: data
     }
 }
-const getUserById = async (id)=>{
+const updateUser = async (id, userData)=>{
     const token = localStorage.getItem("token")
-    const response = await fetch(`http://localhost:8080/admin/users/${id}`, {
-        method: "GET",
+    const response = await fetch(`http://localhost:8080/admin/users/${id}`,{
+        method: "PATCH",
         headers: {
+            "Content-type": "application/json",
             Authorization: `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify(userData)
     })
     if(!response.ok){
-        console.error("Get user by ID failed")
-        return {
+        console.error("Update user failed")
+        return{
             ok: response.ok,
             status: response.status,
             data: null
@@ -91,4 +93,4 @@ const getUserById = async (id)=>{
         data: data
     }
 }
-export {getAllUsers, deleteUser, createUser, getUserById}
+export {getAllUsers, deleteUser, createUser, updateUser}

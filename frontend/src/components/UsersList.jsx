@@ -1,8 +1,12 @@
 import {useState} from "react";
-function UsersList({users, onDelete, onClose, currentId}){
+import UserEditForm from "./UserEditForm.jsx"
+function UsersList({users, onDelete, onClose, currentId, onEdit}){
     const [selectedUserId, setSelectedUserId] = useState(null)
+    const [selectEditingUserId, setSelectEditingUserId] = useState(null)
     const handleShowDetails = (id) => setSelectedUserId(id)
     const closeDetails = () => setSelectedUserId(null)
+    const handleSHowEdit = (id)=> setSelectEditingUserId(id)
+    const closeEdit = ()=> setSelectEditingUserId(null)
     return(
         <ul>
             {users.map(user =>
@@ -14,7 +18,8 @@ function UsersList({users, onDelete, onClose, currentId}){
                         <p>Creating Date: {user.createdAt}</p>
                         <button onClick={closeDetails}>Close details</button><br/></> }
 
-
+                    <button onClick={()=>handleSHowEdit(user.id)}>Edit user</button>
+                    {selectEditingUserId===user.id && <UserEditForm onEdit={onEdit} userId={user.id} onClose={closeEdit} />}
                     <button onClick={()=>onDelete(user.id)} disabled={currentId===user.id} type="button">Delete</button>
                 </li>)}
             <button onClick={onClose}>Close Users list</button>

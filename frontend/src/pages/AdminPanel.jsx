@@ -1,4 +1,4 @@
-import {getAllUsers, deleteUser, createUser} from "../api/adminApi.js";
+import {getAllUsers, deleteUser, createUser, updateUser} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
@@ -72,6 +72,16 @@ function AdminPanel({currentUserId, onLogout}){
 
 
     }
+    const handleUpdateUser = async (id, userData)=>{
+        const result = await updateUser(id, userData)
+        if(result.status===401){
+            onLogout()
+            return
+        }
+        if(!result.ok) return
+        setUsers(prev =>prev.filter(user =>user.id !== id))
+        setUsers(prev =>[...prev, result.data])
+    }
     const closeUsersList =()=>
         setUsers([])
     const handleShowCreateUser = ()=>
@@ -84,7 +94,7 @@ function AdminPanel({currentUserId, onLogout}){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} />}
             <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
             {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>
