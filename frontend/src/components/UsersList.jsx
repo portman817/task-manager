@@ -1,12 +1,16 @@
 import {useState} from "react";
 import UserEditForm from "./UserEditForm.jsx"
-function UsersList({users, onDelete, onClose, currentId, onEdit}){
+import PasswordChangeForm from "./PasswordChangeForm.jsx";
+function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword}){
     const [selectedUserId, setSelectedUserId] = useState(null)
     const [selectEditingUserId, setSelectEditingUserId] = useState(null)
+    const [selectChangePasswordUserId, setSelectChangePasswordUserId] = useState(null)
     const handleShowDetails = (id) => setSelectedUserId(id)
     const closeDetails = () => setSelectedUserId(null)
     const handleSHowEdit = (id)=> setSelectEditingUserId(id)
     const closeEdit = ()=> setSelectEditingUserId(null)
+    const handleShowChangePassword = (id)=> setSelectChangePasswordUserId(id)
+    const closeChangePassword = ()=> setSelectChangePasswordUserId(null)
     return(
         <ul>
             {users.map(user =>
@@ -20,6 +24,8 @@ function UsersList({users, onDelete, onClose, currentId, onEdit}){
 
                     <button onClick={()=>handleSHowEdit(user.id)}>Edit user</button>
                     {selectEditingUserId===user.id && <UserEditForm onEdit={onEdit} userId={user.id} onClose={closeEdit} />}
+                    <button onClick={() =>handleShowChangePassword(user.id)}>Change password</button>
+                    {selectChangePasswordUserId===user.id && <PasswordChangeForm userId={user.id} onPasswordChange={onChangePassword} onClose={closeChangePassword}/>}
                     <button onClick={()=>onDelete(user.id)} disabled={currentId===user.id} type="button">Delete</button>
                 </li>)}
             <button onClick={onClose}>Close Users list</button>

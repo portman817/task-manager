@@ -1,4 +1,4 @@
-import {getAllUsers, deleteUser, createUser, updateUser} from "../api/adminApi.js";
+import {getAllUsers, deleteUser, createUser, updateUser, changePassword} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
@@ -82,6 +82,20 @@ function AdminPanel({currentUserId, onLogout}){
         setUsers(prev =>prev.filter(user =>user.id !== id))
         setUsers(prev =>[...prev, result.data])
     }
+    const handleUserChangePassword = async (id, newPassword)=>{
+        try {
+            const result = await changePassword(id, newPassword)
+            if(result.status===401){
+                onLogout()
+                return false
+            }
+            return result.ok;
+        }
+        catch (error){
+            console.error("Failed to change password", error)
+            return false
+        }
+    }
     const closeUsersList =()=>
         setUsers([])
     const handleShowCreateUser = ()=>
@@ -94,7 +108,7 @@ function AdminPanel({currentUserId, onLogout}){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} />}
             <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
             {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>

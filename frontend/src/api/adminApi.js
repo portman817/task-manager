@@ -93,4 +93,30 @@ const updateUser = async (id, userData)=>{
         data: data
     }
 }
-export {getAllUsers, deleteUser, createUser, updateUser}
+const changePassword = async (id, newPassword)=>{
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:8080/admin/users/${id}/password`, {
+        method: "PUT",
+        headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+
+        },
+        body: JSON.stringify({newPassword})
+
+    })
+    if(!response.ok){
+        console.error("Change password failed")
+        return{
+            ok: response.ok,
+            status: response.status,
+            data: null
+        }
+    }
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: null
+    }
+}
+export {getAllUsers, deleteUser, createUser, updateUser, changePassword}
