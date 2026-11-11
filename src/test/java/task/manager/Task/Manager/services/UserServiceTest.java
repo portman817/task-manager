@@ -298,31 +298,51 @@ public class UserServiceTest {
 
         @Test
         void shouldThrowNotFoundWhenUserIsNotFound() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setUsername("John");
             Long userId = 1L;
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            SecurityContextHolder.setContext(securityContext);
             ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUser(userId, request));
             assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
             assertEquals("User not found", exception.getReason());
+            verify(userRepository).findByUsername(anyString());
             verify(userRepository).findById(userId);
-            verify(userRepository, never()).findByUsername(anyString());
             verify(userRepository, never()).save(any(User.class));
         }
 
         @Test
         void shouldUpdateUsernameSuccessfully() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setUsername("John");
             User user = new User();
             user.setUserId(1L);
             user.setUsername("Anna");
+            user.setRole(Role.USER);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
             when(userRepository.save(user)).thenReturn(user);
+            SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.updateUser(user.getUserId(), request);
             assertEquals(user.getUserId(), response.id());
             assertEquals(request.getUsername(), response.username());
+            assertEquals(Role.USER, response.role());
             verify(userRepository).findById(user.getUserId());
             verify(userRepository).findByUsername(request.getUsername());
             verify(userRepository).save(user);
@@ -330,16 +350,26 @@ public class UserServiceTest {
 
         @Test
         void shouldThrowConflictWhenNewUsernameAlreadyExists() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setUsername("John");
             User userToUpdate = new User();
             userToUpdate.setUserId(1L);
             userToUpdate.setUsername("Anna");
+            userToUpdate.setRole(Role.USER);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
             User existingUser = new User();
             existingUser.setUserId(2L);
             existingUser.setUsername("John");
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(userToUpdate.getUserId())).thenReturn(Optional.of(userToUpdate));
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.of(existingUser));
+            SecurityContextHolder.setContext(securityContext);
             ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUser(userToUpdate.getUserId(), request));
             assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
             assertEquals("Username is already exist", exception.getReason());
@@ -350,23 +380,33 @@ public class UserServiceTest {
 
         @Test
         void shouldUpdateRoleSuccessfully() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setRole(Role.USER);
             User user = new User();
             user.setUserId(1L);
             user.setRole(Role.ADMIN);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
+            SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.updateUser(user.getUserId(), request);
             assertEquals(user.getUserId(), response.id());
             assertEquals(request.getRole(), response.role());
+            verify(userRepository).findByUsername(anyString());
             verify(userRepository).findById(user.getUserId());
-            verify(userRepository, never()).findByUsername(anyString());
             verify(userRepository).save(user);
         }
 
         @Test
         void shouldUpdateUsernameAndRoleSuccessfully() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setUsername("John");
             request.setRole(Role.ADMIN);
@@ -374,9 +414,17 @@ public class UserServiceTest {
             user.setUsername("Anna");
             user.setRole(Role.USER);
             user.setUserId(1L);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
             when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
             when(userRepository.save(user)).thenReturn(user);
+            SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.updateUser(user.getUserId(), request);
             assertEquals(user.getUserId(), response.id());
             assertEquals(request.getUsername(), response.username());
@@ -388,6 +436,7 @@ public class UserServiceTest {
 
         @Test
         void shouldReturnCurrentUserWhenNothingChanged() {
+            String currentUserUsername = "CurrentUsername";
             AdminUserUpdateRequest request = new AdminUserUpdateRequest();
             request.setRole(Role.USER);
             request.setUsername("John");
@@ -395,15 +444,100 @@ public class UserServiceTest {
             user.setUserId(1L);
             user.setRole(Role.USER);
             user.setUsername("John");
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(2L);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            SecurityContextHolder.setContext(securityContext);
             UserResponse response = userService.updateUser(user.getUserId(), request);
             assertEquals(user.getUserId(), response.id());
             assertEquals(request.getRole(), response.role());
             assertEquals(request.getUsername(), response.username());
+            verify(userRepository).findByUsername(anyString());
             verify(userRepository).findById(user.getUserId());
-            verify(userRepository, never()).findByUsername(anyString());
             verify(userRepository, never()).save(any(User.class));
         }
+        @Test
+        void  shouldThrowForbiddenWhenAdminChangesOwnRole() {
+            String currentUserUsername = "CurrentUsername";
+            AdminUserUpdateRequest request = new AdminUserUpdateRequest();
+            request.setRole(Role.USER);
+            long userId = 1L;
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(userId);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
+            SecurityContextHolder.setContext(securityContext);
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class, ()-> userService.updateUser(userId, request));
+            assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+            assertEquals("Only another administrator can change your role", exception.getReason());
+            verify(userRepository).findByUsername(currentUserUsername);
+            verify(userRepository, never()).findById(anyLong());
+            verify(userRepository, never()).save(any(User.class));
+        }
+        @Test
+        void shouldAllowAdminToUpdateOwnUsername() {
+            String currentUserUsername = "CurrentUsername";
+            AdminUserUpdateRequest request = new AdminUserUpdateRequest();
+            request.setUsername("John");
+            long userId = 1L;
+            User user = new User();
+            user.setUserId(userId);
+            user.setRole(Role.ADMIN);
+            user.setUsername(currentUserUsername);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(userId);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
+            when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
+            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            when(userRepository.save(user)).thenReturn(user);
+            SecurityContextHolder.setContext(securityContext);
+            UserResponse response = userService.updateUser(userId, request);
+            assertEquals(userId, response.id());
+            assertEquals(Role.ADMIN, response.role());
+            assertEquals(request.getUsername(), response.username());
+            verify(userRepository).findByUsername(currentUserUsername);
+            verify(userRepository).findById(userId);
+            verify(userRepository).findByUsername(request.getUsername());
+            verify(userRepository).save(user);
+        }
+        @Test
+        void shouldAllowAdminToKeepOwnRole(){
+            String currentUserUsername = "CurrentUsername";
+            AdminUserUpdateRequest request = new AdminUserUpdateRequest();
+            request.setRole(Role.ADMIN);
+            long userId = 1L;
+            User user = new User();
+            user.setUserId(userId);
+            user.setRole(Role.ADMIN);
+            user.setUsername(currentUserUsername);
+            User admin = new User();
+            admin.setUsername(currentUserUsername);
+            admin.setUserId(userId);
+            admin.setRole(Role.ADMIN);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserUsername);
+            when(userRepository.findByUsername(currentUserUsername)).thenReturn(Optional.of(admin));
+            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            SecurityContextHolder.setContext(securityContext);
+            UserResponse response = userService.updateUser(userId, request);
+            assertEquals(request.getRole(), response.role());
+            verify(userRepository).findByUsername(currentUserUsername);
+            verify(userRepository).findById(userId);
+            verify(userRepository, never()).save(any(User.class));
+        }
+
     }
     @Nested
     @DisplayName("changePassword()")

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import UserEditForm from "./UserEditForm.jsx"
 import PasswordChangeForm from "./PasswordChangeForm.jsx";
-function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword}){
+function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword, onLogout}){
     const [selectedUserId, setSelectedUserId] = useState(null)
     const [selectEditingUserId, setSelectEditingUserId] = useState(null)
     const [selectChangePasswordUserId, setSelectChangePasswordUserId] = useState(null)
@@ -23,7 +23,7 @@ function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePasswor
                         <button onClick={closeDetails}>Close details</button><br/></> }
 
                     <button onClick={()=>handleSHowEdit(user.id)}>Edit user</button>
-                    {selectEditingUserId===user.id && <UserEditForm onEdit={onEdit} userId={user.id} onClose={closeEdit} />}
+                    {selectEditingUserId===user.id && <UserEditForm onEdit={onEdit} userId={user.id} onClose={closeEdit} userUsername={user.username} userRole={user.role} currentUserId={currentId} onLogout={onLogout} />}
                     <button onClick={() =>handleShowChangePassword(user.id)}>Change password</button>
                     {selectChangePasswordUserId===user.id && <PasswordChangeForm userId={user.id} onPasswordChange={onChangePassword} onClose={closeChangePassword}/>}
                     <button onClick={()=>onDelete(user.id)} disabled={currentId===user.id} type="button">Delete</button>

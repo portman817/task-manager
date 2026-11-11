@@ -85,6 +85,11 @@ public class UserService {
         if(request.getUsername()==null && request.getRole()==null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
         }
+        UserResponse currentUser = getCurrentUser();
+        if(Objects.equals(currentUser.id(), userId) && currentUser.role()==Role.ADMIN && request.getRole()==Role.USER){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only another administrator can change your role");
+        }
+
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         if(request.getUsername()!=null && !user.getUsername().equals(request.getUsername())){

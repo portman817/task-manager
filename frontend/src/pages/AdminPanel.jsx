@@ -73,15 +73,22 @@ function AdminPanel({currentUserId, onLogout}){
 
     }
     const handleUpdateUser = async (id, userData)=>{
-        const result = await updateUser(id, userData)
-        if(result.status===401){
-            onLogout()
+        try {
+            const result = await updateUser(id, userData)
+            if(result.status===401){
+                onLogout()
+                return
+            }
+            if(!result.ok) return
+            setUsers(prev =>prev.filter(user =>user.id !== id))
+            setUsers(prev =>[...prev, result.data])
+        }
+        catch (error) {
+            console.error("User update failed", error)
             return
         }
-        if(!result.ok) return
-        setUsers(prev =>prev.filter(user =>user.id !== id))
-        setUsers(prev =>[...prev, result.data])
-    }
+        }
+
     const handleUserChangePassword = async (id, newPassword)=>{
         try {
             const result = await changePassword(id, newPassword)
@@ -108,7 +115,7 @@ function AdminPanel({currentUserId, onLogout}){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} onLogout={onLogout} />}
             <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
             {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>
