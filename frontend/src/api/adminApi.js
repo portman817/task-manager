@@ -119,4 +119,26 @@ const changePassword = async (id, newPassword)=>{
         data: null
     }
 }
-export {getAllUsers, deleteUser, createUser, updateUser, changePassword}
+const getTasksByUserId = async (userId) =>{
+    const token = localStorage.getItem("token")
+    const responses = await fetch(`http://localhost:8080/admin/users/${userId}/tasks`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    if(!responses.ok){
+        return{
+            ok: responses.ok,
+            status: responses.status,
+            data: null
+        }
+    }
+    const data = await responses.json()
+    return {
+        ok: responses.ok,
+        status: responses.status,
+        data: data
+    }
+}
+export {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId}

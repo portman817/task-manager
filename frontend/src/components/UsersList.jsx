@@ -1,16 +1,26 @@
 import {useState} from "react";
-import UserEditForm from "./UserEditForm.jsx"
+import UserEditForm from "./UserEditForm.jsx";
+import Task from "./Task.jsx";
 import PasswordChangeForm from "./PasswordChangeForm.jsx";
-function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword, onLogout}){
+function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword, onLogout, onShowTasksByUserId}){
     const [selectedUserId, setSelectedUserId] = useState(null)
     const [selectEditingUserId, setSelectEditingUserId] = useState(null)
     const [selectChangePasswordUserId, setSelectChangePasswordUserId] = useState(null)
+    const [selectShowTasksUserId, setSelectShowTasksUserId] = useState(null)
+    const  [tasks, setTasks] = useState([])
     const handleShowDetails = (id) => setSelectedUserId(id)
     const closeDetails = () => setSelectedUserId(null)
     const handleSHowEdit = (id)=> setSelectEditingUserId(id)
     const closeEdit = ()=> setSelectEditingUserId(null)
     const handleShowChangePassword = (id)=> setSelectChangePasswordUserId(id)
     const closeChangePassword = ()=> setSelectChangePasswordUserId(null)
+    const handleShowTasksByUserId = async (id)=>{
+        setTasks([])
+        const data = await onShowTasksByUserId(id)
+        setTasks(data)
+        setSelectShowTasksUserId(id)
+    }
+    const closeShowTasksByUserId = ()=> setSelectShowTasksUserId(null)
     return(
         <ul>
             {users.map(user =>
@@ -19,7 +29,25 @@ function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePasswor
                     <button onClick={()=>handleShowDetails(user.id)}>Details</button>
                     {selectedUserId===user.id && <><p>Id: {user.id}</p>
                         <p>Role: {user.role}</p>
-                        <p>Creating Date: {user.createdAt}</p>
+                        <p>Creating Date: {user.createdAt}</p><br/>
+                        <button onClick={() =>handleShowTasksByUserId(user.id)}>Show tasks</button>
+                        {selectShowTasksUserId && (
+                            <>
+                                {tasks.length !== 0 ? (
+                                    <ul>
+                                        {tasks.map(task => (
+                                            <Task key={task.taskId} task={task} />
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p>This user has no tasks.</p>
+                                )}
+
+                                <button onClick={closeShowTasksByUserId}>
+                                    Close tasks
+                                </button>
+                            </>
+                        )}
                         <button onClick={closeDetails}>Close details</button><br/></> }
 
                     <button onClick={()=>handleSHowEdit(user.id)}>Edit user</button>
