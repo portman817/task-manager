@@ -1,4 +1,4 @@
-import {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId} from "../api/adminApi.js";
+import {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
@@ -118,6 +118,20 @@ function AdminPanel({currentUserId, onLogout}){
             console.error("Loading tasks failed", error)
         }
     }
+    const handleCreateTask = async (taskData)=>{
+        try{
+           const result = await createTask(taskData)
+            if(result.status===401){
+                onLogout()
+                return
+            }
+            if(!result.ok) return
+            return result.data
+        }
+        catch (error) {
+            console.error("Create task failed", error)
+        }
+    }
     const closeUsersList =()=>
         setUsers([])
     const handleShowCreateUser = ()=>
@@ -130,7 +144,7 @@ function AdminPanel({currentUserId, onLogout}){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} onLogout={onLogout} onShowTasksByUserId={handleGetTasksByUserId} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} onLogout={onLogout} onShowTasksByUserId={handleGetTasksByUserId} onCreateTask={handleCreateTask} />}
             <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
             {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>

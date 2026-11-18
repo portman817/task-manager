@@ -1,7 +1,7 @@
 import TASK_STATUSES from "../constants/taskStatuses.js"
 import {useState} from "react";
 
-function AddTask({onSubmit, onClose}){
+function AddTask({onSubmit, onClose, userId}){
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [taskStatus, setTaskStatus] = useState("WARTET")
@@ -9,11 +9,15 @@ function AddTask({onSubmit, onClose}){
         event.preventDefault()
         if(title.trim()==="") return
         const taskData = {title, description, taskStatus}
+        if(userId!==null) {
+            taskData.userId = userId
+        }
         const success = await onSubmit(taskData)
         if(!success) return
         setTitle("")
         setDescription("")
         setTaskStatus("WARTET")
+        onClose()
     }
     return(<form onSubmit={handleCreateTask}>
         <p>New Task: {title}</p>

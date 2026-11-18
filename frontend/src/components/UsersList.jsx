@@ -2,12 +2,14 @@ import {useState} from "react";
 import UserEditForm from "./UserEditForm.jsx";
 import Task from "./Task.jsx";
 import PasswordChangeForm from "./PasswordChangeForm.jsx";
-function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword, onLogout, onShowTasksByUserId}){
+import AddTask from "./AddTask.jsx";
+function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePassword, onLogout, onShowTasksByUserId, onCreateTask}){
     const [selectedUserId, setSelectedUserId] = useState(null)
     const [selectEditingUserId, setSelectEditingUserId] = useState(null)
     const [selectChangePasswordUserId, setSelectChangePasswordUserId] = useState(null)
     const [selectShowTasksUserId, setSelectShowTasksUserId] = useState(null)
-    const  [tasks, setTasks] = useState([])
+    const [tasks, setTasks] = useState([])
+    const [selectCreateTaskUserId, setSelectCreateTaskUserId] = useState(null)
     const handleShowDetails = (id) => setSelectedUserId(id)
     const closeDetails = () => setSelectedUserId(null)
     const handleSHowEdit = (id)=> setSelectEditingUserId(id)
@@ -15,12 +17,22 @@ function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePasswor
     const handleShowChangePassword = (id)=> setSelectChangePasswordUserId(id)
     const closeChangePassword = ()=> setSelectChangePasswordUserId(null)
     const handleShowTasksByUserId = async (id)=>{
+        setSelectShowTasksUserId(null)
         setTasks([])
         const data = await onShowTasksByUserId(id)
+        if (!Array.isArray(data)) return
         setTasks(data)
         setSelectShowTasksUserId(id)
     }
     const closeShowTasksByUserId = ()=> setSelectShowTasksUserId(null)
+    const showCreateTask = (id)=> setSelectCreateTaskUserId(id)
+    const closeCreateTask = ()=> setSelectCreateTaskUserId(null)
+    const createTask = async (taskData)=>{
+        const data = await onCreateTask(taskData)
+        if (!data || typeof data !== "object") return false
+        setTasks(prev => [...prev, data])
+        return true
+    }
     return(
         <ul>
             {users.map(user =>
@@ -33,19 +45,10 @@ function UsersList({users, onDelete, onClose, currentId, onEdit, onChangePasswor
                         <button onClick={() =>handleShowTasksByUserId(user.id)}>Show tasks</button>
                         {selectShowTasksUserId && (
                             <>
-                                {tasks.length !== 0 ? (
-                                    <ul>
-                                        {tasks.map(task => (
-                                            <Task key={task.taskId} task={task} />
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p>This user has no tasks.</p>
-                                )}
-
-                                <button onClick={closeShowTasksByUserId}>
-                                    Close tasks
-                                </button>
+                                {tasks.length !== 0 ? (<ul>{tasks.map(task => (<Task key={task.taskId} task={task} />))}</ul>) : (<p>This user has no tasks.</p>)}
+                                <button onClick={() => showCreateTask(user.id)}>Create Task</button>
+                                {selectCreateTaskUserId && <AddTask onSubmit={createTask} userId={user.role==="ADMIN" ? user.id: null} onClose={closeCreateTask} />}
+                                <button onClick={closeShowTasksByUserId}>Close tasks</button>
                             </>
                         )}
                         <button onClick={closeDetails}>Close details</button><br/></> }
