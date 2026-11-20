@@ -167,4 +167,26 @@ const createTask = async (taskData)=>{
     }
 
 }
-export {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask}
+const deleteTask = async (id)=>{
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:8080/admin/tasks/${id}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    if(!response.ok){
+        console.log("Delete task failed")
+        return{
+            ok: response.ok,
+            status: response.status,
+            data: null
+        }
+    }
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: null
+    }
+}
+export {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask, deleteTask}

@@ -7,7 +7,7 @@ import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
 import RegisterForm from "./components/RegisterForm.jsx";
 import Welcome from "./components/Welcome.jsx";
-import {Routes, Route, Navigate, Link} from "react-router-dom";
+import {Routes, Route, Navigate, Link, useLocation} from "react-router-dom";
 import AdminPanel from "./pages/AdminPanel.jsx";
 
 function Header({appName}) {
@@ -22,6 +22,7 @@ function Logout({onLogout}) {
     )
 }
 function App() {
+    const location = useLocation()
     const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") !== null);
     const [tasks, setTasks] = useState([])
     const [showAddTask, setShowAddTask] = useState(false)
@@ -76,6 +77,30 @@ function App() {
         loadCurrentUser()
 
     }, [loggedIn])
+    useEffect(() => {
+        if (!loggedIn || location.pathname !== "/") return
+
+        const loadTasks = async () => {
+            try {
+                const result = await getTasks()
+
+                if (result.status === 401) {
+                    handleLogout()
+                    return
+                }
+
+                if (!result.ok) return
+
+                setTasks(result.data)
+
+            } catch (error) {
+                console.error("Failed to load tasks:", error)
+            }
+        }
+
+        loadTasks()
+
+    }, [loggedIn, location.pathname])
 const appName = "Task Manager";
 const updateTask = (updatedTask)=>{
     setTasks(prev =>prev.map(task => task.taskId === updatedTask.taskId ? updatedTask: task))
@@ -152,7 +177,7 @@ const showRegisterForm= ()=>{
                                               <Task
                                                   key={task.taskId}
                                                   task={task}
-                                                  onDelete={()=>handleDeleteTask(task.taskId)} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
+                                                  onDelete={handleDeleteTask} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
                                           )}
                                       </ul>) :(
                                       <p>{loggedIn && "We have no Tasks"}</p>
@@ -164,7 +189,7 @@ const showRegisterForm= ()=>{
                               </>
 
           }/>
-          <Route path="/admin" element={userLoading ? <p>User Loading</p>: loggedIn && currentUser?.role==="ADMIN" ? <AdminPanel currentUserId={currentUser.id} onLogout={handleLogout} /> : <Navigate to="/" replace />}/>
+          <Route path="/admin" element={userLoading ? <p>User Loading</p>: loggedIn && currentUser?.role==="ADMIN" ? <AdminPanel currentUserId={currentUser.id} onLogout={handleLogout} currentUserRole={currentUser.role} /> : <Navigate to="/" replace />}/>
       </Routes>
 
   )
