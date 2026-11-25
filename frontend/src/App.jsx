@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react'
 import LoginForm from "./components/LoginForm.jsx";
 import Task from "./components/Task.jsx";
 import AddTask from "./components/AddTask.jsx";
-import {deleteTask, getTasks, createTask} from "./api/taskApi.js";
+import {deleteTask, getTasks, createTask, editTask} from "./api/taskApi.js";
 import {getCurrentUser} from "./api/userApi.js";
 import RegisterForm from "./components/RegisterForm.jsx";
 import Welcome from "./components/Welcome.jsx";
@@ -26,7 +26,6 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token") !== null);
     const [tasks, setTasks] = useState([])
     const [showAddTask, setShowAddTask] = useState(false)
-    const [editingTaskId, setEditingTaskId] = useState(null)
     const [currentUser, setCurrentUser]= useState(null)
     const [isRegistered, setIsRegistered] = useState(true)
     const [userLoading, setUserLoading] = useState(loggedIn)
@@ -35,7 +34,6 @@ function App() {
         setLoggedIn(false)
         localStorage.removeItem("token")
         setTasks([])
-        setEditingTaskId(null)
         setCurrentUser(null)
         setUserLoading(false)
     }
@@ -43,18 +41,6 @@ function App() {
         if(!loggedIn){
             return
         }
-
-        const loadTasks = async ()=>{
-            const result = await getTasks()
-            if(result.status===401){
-                handleLogout()
-                return
-            }
-            if(!result.ok) return
-
-            setTasks(result.data)
-        }
-        loadTasks()
         const loadCurrentUser = async ()=>{
             try {
                 const result = await getCurrentUser()
@@ -79,7 +65,6 @@ function App() {
     }, [loggedIn])
     useEffect(() => {
         if (!loggedIn || location.pathname !== "/") return
-
         const loadTasks = async () => {
             try {
                 const result = await getTasks()
@@ -97,13 +82,18 @@ function App() {
                 console.error("Failed to load tasks:", error)
             }
         }
-
         loadTasks()
 
     }, [loggedIn, location.pathname])
 const appName = "Task Manager";
-const updateTask = (updatedTask)=>{
-    setTasks(prev =>prev.map(task => task.taskId === updatedTask.taskId ? updatedTask: task))
+const updateTask = async (updatedTask, id)=>{
+    const result = await editTask(updatedTask, id)
+    if(result.status===401){
+        handleLogout()
+        return
+    }
+    if(!result.ok) return
+    setTasks(prev =>prev.map(task => task.taskId === result.data.taskId ? result.data: task))
 }
 const updateUsername =(updatedUser)=>{
     setCurrentUser(updatedUser)
@@ -112,13 +102,6 @@ const handleLogin = () =>{
 
     setLoggedIn(true)
     setUserLoading(true)
-}
-
-const handleTaskEdit = (id)=>{
-    setEditingTaskId(id)
-}
-const isEditing =(id)=>{
-    return editingTaskId === id
 }
 const handleDeleteTask = async (id)=>{
     const success = await deleteTask(id)
@@ -148,9 +131,6 @@ const handelShowAddTask = ()=>{
 const closeAddTask = ()=>{
     setShowAddTask(false)
 }
-const closeEditingTask = ()=>{
-    setEditingTaskId(null)
-}
 const showRegisterForm= ()=>{
     setIsRegistered(false)
     }
@@ -177,7 +157,7 @@ const showRegisterForm= ()=>{
                                               <Task
                                                   key={task.taskId}
                                                   task={task}
-                                                  onDelete={handleDeleteTask} onEdit={()=>handleTaskEdit(task.taskId)} isEditing={isEditing(task.taskId)} onCloseEditing={closeEditingTask} onUpdate={updateTask}/>
+                                                  onDelete={handleDeleteTask}   onUpdate={updateTask}/>
                                           )}
                                       </ul>) :(
                                       <p>{loggedIn && "We have no Tasks"}</p>

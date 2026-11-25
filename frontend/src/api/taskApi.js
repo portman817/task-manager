@@ -70,8 +70,17 @@ const editTask = async (updatedTaskFields, taskId)=>{
         },
         body: JSON.stringify(updatedTaskFields)
     })
-    if(!response.ok) return null
-    return  await response.json()
+    if(!response.ok) return {
+        ok: response.ok,
+        status: response.status,
+        data: null
+    }
+    const data = await response.json()
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: data
+    }
 
 }
 

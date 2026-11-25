@@ -189,4 +189,33 @@ const deleteTask = async (id)=>{
         data: null
     }
 }
-export {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask, deleteTask}
+const editTask = async (taskData, id)=>{
+    console.log("Task ID:", id)
+    console.log("Request body:", JSON.stringify(taskData))
+    const token = localStorage.getItem("token")
+    const response = await fetch(`http://localhost:8080/admin/tasks/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`
+
+        },
+        body: JSON.stringify(taskData)
+    })
+    if(!response.ok){
+        console.error("Update task failed:", response.status)
+        console.error("Backend response:", await response.text())
+        return{
+            ok: response.ok,
+            status: response.status,
+            data: null
+        }
+    }
+    const data = await response.json()
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: data
+    }
+}
+export {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask, deleteTask, editTask}

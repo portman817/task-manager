@@ -1,21 +1,22 @@
 import {useState} from "react";
-import {editTask} from "../api/taskApi.js";
 import TASK_STATUSES from "../constants/taskStatuses.js"
 
-function EditingTask({task, onClose, onUpdate}){
+function EditingTask({task, onClose, onUpdate, availableUsers, currentUserRole}){
     const [editTitle, setEditTitle] = useState(task.title)
     const [editDescription, setEditDescription] = useState(task.description)
     const [editTaskStatus, setEditTaskStatus] = useState(task.status)
+    const [userId, setUserId] = useState(task.owner.id)
     const handleSubmit = async (event)=>{
         event.preventDefault()
         const updatedTaskFields = {}
         if(editTitle !== task.title) updatedTaskFields.title=editTitle
         if(editDescription !== task.description) updatedTaskFields.description=editDescription
         if(editTaskStatus !== task.status) updatedTaskFields.taskStatus=editTaskStatus
+        if(currentUserRole ==="ADMIN" && availableUsers) updatedTaskFields.userId=userId
         if(Object.keys(updatedTaskFields).length===0) return
-        const data = await editTask(updatedTaskFields, task.taskId)
+        console.log(updatedTaskFields)
+        const data = await onUpdate(updatedTaskFields, task.taskId)
         if(data===null) return
-        onUpdate(data)
         onClose()
     }
     return(<form onSubmit={handleSubmit} style={{border: "1px white solid"}}>
@@ -27,6 +28,10 @@ function EditingTask({task, onClose, onUpdate}){
         <select style={{marginBottom: "20px", padding: "5px"}} value={editTaskStatus} onChange={event => {setEditTaskStatus(event.target.value)}}>
             {Object.entries(TASK_STATUSES).map(([value, label]) =><option key={value} value={value}>{label}</option>)}
         </select><br/>
+        {(currentUserRole==="ADMIN" && availableUsers) &&
+            <select value={userId} onChange={event => setUserId(Number(event.target.value))}>
+                {availableUsers.map(({id, username}) => <option key={id} value={id}>{username}</option>)}
+            </select>}
         <button style={{marginRight: "10px"}} type="submit">Save</button>
         <button type="button" onClick={onClose}>Close Editing</button>
     </form>)

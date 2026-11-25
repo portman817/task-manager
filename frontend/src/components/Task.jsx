@@ -1,13 +1,17 @@
 import EditingTask from "./EditingTask.jsx";
+import {useState} from "react";
 
-function Task({task, onDelete, onEdit, isEditing, onCloseEditing, onUpdate, currentUserRole}){
+function Task({task, onDelete, onUpdate, currentUserRole, availableUsers}){
+    const [editingTaskId, setEditingTaskId] = useState(null)
+    const showEditingTask = (id) => setEditingTaskId(id)
+    const closeEditingTask = () => setEditingTaskId(null)
     return(
-        <li ><button onClick={onEdit}>Edit</button>{task.title}
+        <li ><button onClick={()=> showEditingTask(task.taskId)}>Edit</button>{task.title}
             <button onClick={()=>onDelete(task.taskId)}>Delete</button><br/>
             {currentUserRole==="Admin" && <p>{task.taskId}</p>}
             <p>{task.description}</p>
             <p>{task.status}</p>
-            {isEditing && <EditingTask task={task} onClose={onCloseEditing} onUpdate={onUpdate}  />}
+            {editingTaskId && <EditingTask task={task} onClose={closeEditingTask} onUpdate={onUpdate} availableUsers={availableUsers} currentUserRole={currentUserRole} />}
         </li>)
 }
 

@@ -1,4 +1,4 @@
-import {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask, deleteTask} from "../api/adminApi.js";
+import {getAllUsers, deleteUser, createUser, updateUser, changePassword, getTasksByUserId, createTask, deleteTask, editTask} from "../api/adminApi.js";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import UsersList from "../components/UsersList.jsx";
@@ -6,7 +6,6 @@ import CreateUserForm from "../components/CreateUserForm.jsx"
 
 function AdminPanel({currentUserId, onLogout, currentUserRole}){
     const [users, setUsers] = useState([])
-
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [showCreateUser, setShowCreateUser] = useState(false)
@@ -139,12 +138,26 @@ function AdminPanel({currentUserId, onLogout, currentUserRole}){
                 onLogout()
                 return false
             }
-            if(!result.ok) return false
-            return true
+
+            return result.ok
         }
         catch (error) {
             console.error("Delete task by admin failed:", error)
             return false
+        }
+    }
+    const handleEditTask = async (taskData, id)=>{
+        try {
+            const result = await editTask(taskData, id)
+            if(result.status===401){
+                onLogout()
+                return
+            }
+            if(!result.ok) return
+            return result.data
+        }
+        catch (error) {
+            console.error("Editing task failed", error)
         }
     }
     const closeUsersList =()=>
@@ -159,7 +172,7 @@ function AdminPanel({currentUserId, onLogout, currentUserRole}){
         <h1>Admin Panel</h1>
             <button onClick={getUsers} disabled={loading}>Get All Users</button>
             {error && <p>{error}</p>}
-            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} onLogout={onLogout} onShowTasksByUserId={handleGetTasksByUserId} onCreateTask={handleCreateTask} onDeleteTask={handleDeleteTask} currentUserRole={currentUserRole} />}
+            {users.length!==0 && <UsersList currentId={currentUserId} users={users} onDelete={handleDeleteUser} onClose={closeUsersList} onEdit={handleUpdateUser} onChangePassword={handleUserChangePassword} onLogout={onLogout} onShowTasksByUserId={handleGetTasksByUserId} onCreateTask={handleCreateTask} onDeleteTask={handleDeleteTask} currentUserRole={currentUserRole} onEditTask={handleEditTask} />}
             <button onClick={handleShowCreateUser} style={{marginTop: "10px"}}>Create User</button>
             {showCreateUser && <CreateUserForm onSubmit={handleCreateUser} onClose={closeCreateUser} />}
             <Link to="/">Back</Link>
